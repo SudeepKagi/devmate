@@ -1,0 +1,15 @@
+llm:
+  provider: gemini    # gemini | grok
+  model: gemini-2.5-flash
+
+embeddings:
+  provider: gemini    # gemini | huggingface
+  model: gemini-embedding-001
+
+chromadb:
+  persist_dir: .chromadb/
+  collection_name: codebase
+
+elasticsearch:
+  url: http://localhost:9200
+  index_name: codebase
