@@ -9,7 +9,7 @@ def handle_query(question: str) -> str:
     agent = build_agent()
     response = agent.invoke(
         {"messages": [{"role": "user", "content": question}]},
-        config={"recursion_limit": 6}
+        config={"recursion_limit": 10}
     )
 
     raw_content = ""

@@ -13,7 +13,13 @@ def get_llm():
     if provider == "gemini":
         from langchain_google_genai import ChatGoogleGenerativeAI
         api_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
-        return ChatGoogleGenerativeAI(model=model, google_api_key=api_key)
+        # max_retries=1 prevents tenacity from freezing the terminal for minutes on 429s
+        return ChatGoogleGenerativeAI(
+            model=model,
+            google_api_key=api_key,
+            max_retries=1,
+            temperature=0.2,
+        )
 
     if provider == "grok":
         from langchain_xai import ChatXAI

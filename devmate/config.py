@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 DEFAULT_CONFIG = {
     "llm": {
         "provider": "gemini",
-        "model": "gemini-3.8-flash",
+        "model": "gemini-3.5-flash",
     },
     "embeddings": {
         "provider": "gemini",
