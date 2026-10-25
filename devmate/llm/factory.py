@@ -35,16 +35,32 @@ def get_llm():
             temperature=0.2,
         )
 
+    if provider == "groq":
+        from langchain_groq import ChatGroq
+        api_key = os.getenv("GROQ_API_KEY") or os.getenv("GROK_API_KEY") or os.getenv("XAI_API_KEY")
+        if not api_key:
+            raise ValueError(
+                "GROQ_API_KEY not found. Please add GROQ_API_KEY=your_key in ~/.devmate/.env or .env file."
+            )
+        groq_model = model if model not in ("grok-2-latest", "grok-beta", "grok-2", "default") else "llama-3.3-70b-versatile"
+        return ChatGroq(model=groq_model, api_key=api_key, temperature=0.2)
+
     if provider == "grok":
-        from langchain_xai import ChatXAI
-        api_key = os.getenv("XAI_API_KEY") or os.getenv("GROK_API_KEY")
+        api_key = os.getenv("XAI_API_KEY") or os.getenv("GROK_API_KEY") or os.getenv("GROQ_API_KEY")
         if not api_key:
             raise ValueError(
                 "XAI_API_KEY or GROK_API_KEY not found. Please add XAI_API_KEY=your_key in ~/.devmate/.env or .env file."
             )
+        if api_key.startswith("gsk_"):
+            logger.info("Detected Groq API key (gsk_...). Using Groq provider.")
+            from langchain_groq import ChatGroq
+            groq_model = model if model not in ("grok-2-latest", "grok-beta", "grok-2", "default") else "llama-3.3-70b-versatile"
+            return ChatGroq(model=groq_model, api_key=api_key, temperature=0.2)
+
+        from langchain_xai import ChatXAI
         return ChatXAI(model=model, api_key=api_key, temperature=0.2)
 
-    raise ValueError(f"Unsupported LLM provider: '{provider}'. Supported providers are: 'openai', 'gemini', 'grok'")
+    raise ValueError(f"Unsupported LLM provider: '{provider}'. Supported providers are: 'groq', 'grok', 'openai', 'gemini'")
 
 def get_embedder():
     """Return the right LangChain embedder based on config."""

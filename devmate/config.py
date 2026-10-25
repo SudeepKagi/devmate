@@ -6,8 +6,8 @@ from dotenv import load_dotenv
 # Built-in fallback defaults
 DEFAULT_CONFIG = {
     "llm": {
-        "provider": "grok",
-        "model": "grok-2-latest",
+        "provider": "groq",
+        "model": "llama-3.3-70b-versatile",
     },
     "embeddings": {
         "provider": "huggingface",
