@@ -1,11 +1,10 @@
 llm:
-  provider: openai    # openai | gemini | grok
-  model: gpt-4o-mini
-  max_tokens: 1000
+  provider: grok    # grok | openai | gemini
+  model: grok-2-latest
 
 embeddings:
-  provider: openai    # openai | gemini | huggingface
-  model: text-embedding-3-small
+  provider: huggingface    # huggingface | openai | gemini
+  model: sentence-transformers/all-MiniLM-L6-v2
 
 chromadb:
   persist_dir: .chromadb/

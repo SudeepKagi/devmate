@@ -37,8 +37,12 @@ def get_llm():
 
     if provider == "grok":
         from langchain_xai import ChatXAI
-        api_key = os.getenv("XAI_API_KEY")
-        return ChatXAI(model=model, api_key=api_key)
+        api_key = os.getenv("XAI_API_KEY") or os.getenv("GROK_API_KEY")
+        if not api_key:
+            raise ValueError(
+                "XAI_API_KEY or GROK_API_KEY not found. Please add XAI_API_KEY=your_key in ~/.devmate/.env or .env file."
+            )
+        return ChatXAI(model=model, api_key=api_key, temperature=0.2)
 
     raise ValueError(f"Unsupported LLM provider: '{provider}'. Supported providers are: 'openai', 'gemini', 'grok'")
 

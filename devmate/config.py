@@ -6,13 +6,12 @@ from dotenv import load_dotenv
 # Built-in fallback defaults
 DEFAULT_CONFIG = {
     "llm": {
-        "provider": "openai",
-        "model": "gpt-4o-mini",
-        "max_tokens": 1000,
+        "provider": "grok",
+        "model": "grok-2-latest",
     },
     "embeddings": {
-        "provider": "openai",
-        "model": "text-embedding-3-small",
+        "provider": "huggingface",
+        "model": "sentence-transformers/all-MiniLM-L6-v2",
     },
     "chromadb": {
         "persist_dir": ".chromadb/",
