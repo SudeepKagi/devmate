@@ -1,5 +1,4 @@
 from langchain.agents import create_agent
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 
 from devmate.llm.factory import get_llm
 from devmate.agent.tools import search_codebase
@@ -7,10 +6,11 @@ from devmate.observability.logger import get_logger
 
 logger = get_logger(__name__)
 
-SYSTEM_PROMPT = """You are a senior software engineer with deep knowledge of the codebase.
-Always use the search_codebase tool before answering any question.
-Reference specific file names, function names and line numbers in your answers.
-If you cannot find the answer in the codebase, say so explicitly."""
+SYSTEM_PROMPT = """You are Devmate, a helpful senior AI software engineer assistant.
+Answer the user's question accurately using the codebase context.
+Use the `search_codebase` tool to find relevant files, classes, and functions.
+Be focused and decisive: retrieve the necessary code context (usually 1-2 searches are sufficient), then provide a well-structured, direct answer referencing file names and line numbers.
+If the answer is not present in the codebase, state so clearly."""
 
 def build_agent():
     """Create and return a LangChain agent."""

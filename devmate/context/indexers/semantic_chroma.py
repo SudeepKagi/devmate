@@ -1,5 +1,6 @@
 import time
 import chromadb
+from rich.console import Console
 
 from devmate.config import config
 from devmate.context.indexers.code_parser import parse_file, get_source_files
@@ -7,10 +8,11 @@ from devmate.llm.factory import get_embedder
 from devmate.observability.logger import get_logger
 
 logger = get_logger(__name__)
+console = Console()
 
 def index_codebase(repo_path: str) -> chromadb.Collection:
     """
-    Parse all Python files in repo_path, embed each chunk and store in ChromaDB.
+    Parse all source files in repo_path, embed each chunk and store in ChromaDB.
     Returns the ChromaDB collection for use by the retriever.
     """
     embedder = get_embedder()
@@ -21,7 +23,7 @@ def index_codebase(repo_path: str) -> chromadb.Collection:
 
     files = get_source_files(repo_path)
 
-    for filepath in files:
+    for i, filepath in enumerate(files):
         try:
             chunks = parse_file(filepath)
         except (SyntaxError, ValueError) as e:
@@ -64,3 +66,13 @@ def index_codebase(repo_path: str) -> chromadb.Collection:
 
     logger.info(f"Semantic indexing complete. Total chunks: {collection.count()}")
     return collection
+
+def reindex_codebase(repo_path: str) -> chromadb.Collection:
+    """Reset the ChromaDB collection and perform a fresh indexing of repo_path."""
+    chroma_client = chromadb.PersistentClient(path=config["chromadb"]["persist_dir"])
+    try:
+        chroma_client.delete_collection(name=config["chromadb"]["collection_name"])
+        logger.info(f"Deleted existing collection '{config['chromadb']['collection_name']}'")
+    except Exception:
+        pass
+    return index_codebase(repo_path)

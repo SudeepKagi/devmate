@@ -93,8 +93,10 @@ devmate
 | Command | Description |
 |---|---|
 | `/ask <query>` | Ask questions about the codebase using semantic retrieval |
+| `/reindex` | Force a fresh re-indexing of all files in the current repository |
 | `/show_semantic_index` | View sample chunks currently indexed in ChromaDB |
-| `exit` / `quit` | Exit the CLI session |
+| `/help` | Show available commands |
+| `/exit` / `quit` | Exit the CLI session |
 
 ---
 

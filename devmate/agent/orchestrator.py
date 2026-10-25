@@ -7,7 +7,25 @@ def handle_query(question: str) -> str:
     """Entry point for all user queries - builds the agent and runs it."""
     logger.info(f"Handling query: {question}")
     agent = build_agent()
-    response = agent.invoke({"messages": [{"role": "user", "content": question}]})
+    response = agent.invoke(
+        {"messages": [{"role": "user", "content": question}]},
+        config={"recursion_limit": 6}
+    )
+
+    raw_content = ""
     if isinstance(response, dict) and "messages" in response and response["messages"]:
-        return response["messages"][-1].content
-    return response.get("output", str(response))
+        content = response["messages"][-1].content
+        if isinstance(content, list):
+            parts = []
+            for item in content:
+                if isinstance(item, dict) and "text" in item:
+                    parts.append(item["text"])
+                elif isinstance(item, str):
+                    parts.append(item)
+            raw_content = "\n".join(parts)
+        else:
+            raw_content = str(content)
+    else:
+        raw_content = response.get("output", str(response))
+
+    return raw_content
