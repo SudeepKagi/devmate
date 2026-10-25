@@ -1,6 +1,6 @@
 llm:
   provider: groq    # groq | openai | gemini | grok
-  model: llama-3.3-70b-versatile
+  model: openai/gpt-oss-120b
 
 embeddings:
   provider: huggingface    # huggingface | openai | gemini

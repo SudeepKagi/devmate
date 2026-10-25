@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 DEFAULT_CONFIG = {
     "llm": {
         "provider": "groq",
-        "model": "llama-3.3-70b-versatile",
+        "model": "openai/gpt-oss-120b",
     },
     "embeddings": {
         "provider": "huggingface",

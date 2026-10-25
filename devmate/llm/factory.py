@@ -42,7 +42,7 @@ def get_llm():
             raise ValueError(
                 "GROQ_API_KEY not found. Please add GROQ_API_KEY=your_key in ~/.devmate/.env or .env file."
             )
-        groq_model = model if model not in ("grok-2-latest", "grok-beta", "grok-2", "default") else "llama-3.3-70b-versatile"
+        groq_model = model if model not in ("llama-3.3-70b-versatile", "grok-2-latest", "grok-beta", "grok-2", "default") else "openai/gpt-oss-120b"
         return ChatGroq(model=groq_model, api_key=api_key, temperature=0.2)
 
     if provider == "grok":
@@ -54,7 +54,7 @@ def get_llm():
         if api_key.startswith("gsk_"):
             logger.info("Detected Groq API key (gsk_...). Using Groq provider.")
             from langchain_groq import ChatGroq
-            groq_model = model if model not in ("grok-2-latest", "grok-beta", "grok-2", "default") else "llama-3.3-70b-versatile"
+            groq_model = model if model not in ("llama-3.3-70b-versatile", "grok-2-latest", "grok-beta", "grok-2", "default") else "openai/gpt-oss-120b"
             return ChatGroq(model=groq_model, api_key=api_key, temperature=0.2)
 
         from langchain_xai import ChatXAI
