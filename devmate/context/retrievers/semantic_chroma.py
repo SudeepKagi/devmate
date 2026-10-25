@@ -1,6 +1,6 @@
 import chromadb
 
-from devmate.config import config
+from devmate.config import config, get_project_collection_name, get_chroma_persist_dir
 from devmate.llm.factory import get_embedder
 from devmate.observability.logger import get_logger
 
@@ -11,8 +11,10 @@ def retrieve(query: str, k: int = 5) -> list[dict]:
     Embed the query and find the k most similar chunks in ChromaDB.
     Returns a list of results with content and metadata.
     """
-    chroma_client = chromadb.PersistentClient(path=config["chromadb"]["persist_dir"])
-    collection = chroma_client.get_or_create_collection(name=config["chromadb"]["collection_name"])
+    persist_dir = get_chroma_persist_dir()
+    collection_name = get_project_collection_name()
+    chroma_client = chromadb.PersistentClient(path=persist_dir)
+    collection = chroma_client.get_or_create_collection(name=collection_name)
 
     logger.info(f"Retrieving top {k} chunks for query: {query}")
 

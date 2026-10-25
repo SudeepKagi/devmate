@@ -39,6 +39,7 @@ def load_config() -> dict:
     """
     candidates = [
         Path.cwd() / "config.yaml",
+        Path(__file__).parent / "config.yaml",
         Path.home() / ".devmate" / "config.yaml",
         Path(__file__).resolve().parent.parent / "config.yaml",
     ]
@@ -66,4 +67,31 @@ load_dotenv(Path.home() / ".devmate" / ".env")
 
 config = load_config()
 
-__all__ = ["config", "load_config"]
+def get_project_collection_name(repo_path: str = None) -> str:
+    """
+    Return a project-scoped collection name for vector stores (e.g. Qdrant / Chroma).
+    If the project has an explicit custom collection_name configured in its local config.yaml, use it.
+    Otherwise, scope it using the folder name (e.g. codebase_claude_code, codebase_my_app)
+    so different projects don't collide in shared vector databases.
+    """
+    import re
+    provider = config.get("vector_store", {}).get("provider", "qdrant")
+    store_cfg = config.get("qdrant" if provider == "qdrant" else "chromadb", {})
+    configured = store_cfg.get("collection_name", "codebase")
+
+    target = Path(repo_path or Path.cwd()).resolve()
+    folder_slug = re.sub(r"[^a-zA-Z0-9_-]", "_", target.name.lower()).strip("_")
+
+    if configured == "codebase" and folder_slug:
+        return f"codebase_{folder_slug}"
+    return configured or (f"codebase_{folder_slug}" if folder_slug else "codebase")
+
+def get_chroma_persist_dir(repo_path: str = None) -> str:
+    """Return absolute path for Chroma persist_dir scoped to the target repo."""
+    configured = config.get("chromadb", {}).get("persist_dir", ".chromadb/")
+    p = Path(configured)
+    if not p.is_absolute():
+        p = Path(repo_path or Path.cwd()).resolve() / p
+    return str(p)
+
+__all__ = ["config", "load_config", "get_project_collection_name", "get_chroma_persist_dir"]

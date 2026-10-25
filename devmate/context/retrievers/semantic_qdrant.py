@@ -1,7 +1,7 @@
 import os
 from langchain_qdrant import QdrantVectorStore
 
-from devmate.config import config
+from devmate.config import config, get_project_collection_name
 from devmate.llm.factory import get_embedder
 from devmate.observability.logger import get_logger
 
@@ -13,12 +13,13 @@ def retrieve(query: str, k: int = 5) -> list[dict]:
     Returns a list of results with content and metadata.
     """
     embedder = get_embedder()
+    collection_name = get_project_collection_name()
 
     vector_store = QdrantVectorStore.from_existing_collection(
         embedding=embedder,
         url=os.getenv("QDRANT_URL"),
         api_key=os.getenv("QDRANT_API_KEY"),
-        collection_name=config["qdrant"]["collection_name"],
+        collection_name=collection_name,
     )
 
     logger.info(f"Retrieving top {k} chunks for query: {query}")

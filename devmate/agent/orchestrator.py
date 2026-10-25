@@ -1,4 +1,5 @@
 from devmate.agent.factory import build_agent
+from devmate.agent.tools import reset_search_history
 from devmate.observability.logger import get_logger
 
 logger = get_logger(__name__)
@@ -6,10 +7,11 @@ logger = get_logger(__name__)
 def handle_query(question: str) -> str:
     """Entry point for all user queries - builds the agent and runs it."""
     logger.info(f"Handling query: {question}")
+    reset_search_history()
     agent = build_agent()
     response = agent.invoke(
         {"messages": [{"role": "user", "content": question}]},
-        config={"recursion_limit": 10}
+        config={"recursion_limit": 25}
     )
 
     raw_content = ""

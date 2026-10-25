@@ -2,25 +2,43 @@ import time
 import chromadb
 from rich.console import Console
 
-from devmate.config import config
+from devmate.config import config, get_project_collection_name, get_chroma_persist_dir
 from devmate.context.indexers.code_parser import parse_file, get_source_files
 from devmate.llm.factory import get_embedder
 from devmate.observability.logger import get_logger
+from pathlib import Path
 
 logger = get_logger(__name__)
 console = Console()
 
-def index_codebase(repo_path: str) -> chromadb.Collection:
+def index_codebase(repo_path: str, force: bool = False) -> chromadb.Collection:
     """
     Parse all source files in repo_path, embed each chunk and store in ChromaDB.
     Returns the ChromaDB collection for use by the retriever.
     """
     embedder = get_embedder()
-    chroma_client = chromadb.PersistentClient(path=config["chromadb"]["persist_dir"])
-    collection = chroma_client.get_or_create_collection(name=config["chromadb"]["collection_name"])
+    persist_dir = get_chroma_persist_dir(repo_path)
+    collection_name = get_project_collection_name(repo_path)
+    chroma_client = chromadb.PersistentClient(path=persist_dir)
+    collection = chroma_client.get_or_create_collection(name=collection_name)
 
-    if collection.count() > 0:
-        logger.info(f"Loaded existing index with {collection.count()} chunks")
+    if not force and collection.count() > 0:
+        # Check if collection data belongs to current repo_path
+        results = collection.get(limit=1, include=["metadatas"])
+        if results and results.get("metadatas"):
+            sample_source = results["metadatas"][0].get("source", "")
+            if sample_source:
+                target_resolved = str(Path(repo_path).resolve())
+                sample_resolved = str(Path(sample_source).resolve())
+                try:
+                    Path(sample_resolved).relative_to(Path(target_resolved))
+                except ValueError:
+                    logger.info(
+                        f"Chroma index has chunks from '{sample_resolved}', not '{target_resolved}'. Reindexing."
+                    )
+                    return reindex_codebase(repo_path)
+
+        logger.info(f"Loaded existing index with {collection.count()} chunks from collection '{collection_name}'")
         return collection
 
     logger.info(f"Starting semantic indexing of {repo_path}")
@@ -73,19 +91,23 @@ def index_codebase(repo_path: str) -> chromadb.Collection:
 
 def reindex_codebase(repo_path: str) -> chromadb.Collection:
     """Reset the ChromaDB collection and perform a fresh indexing of repo_path."""
-    chroma_client = chromadb.PersistentClient(path=config["chromadb"]["persist_dir"])
+    persist_dir = get_chroma_persist_dir(repo_path)
+    collection_name = get_project_collection_name(repo_path)
+    chroma_client = chromadb.PersistentClient(path=persist_dir)
     try:
-        chroma_client.delete_collection(name=config["chromadb"]["collection_name"])
-        logger.info(f"Deleted existing collection '{config['chromadb']['collection_name']}'")
+        chroma_client.delete_collection(name=collection_name)
+        logger.info(f"Deleted existing collection '{collection_name}'")
     except Exception:
         pass
-    return index_codebase(repo_path)
+    return index_codebase(repo_path, force=True)
 
 def show_index(collection: chromadb.Collection = None) -> None:
     """Display documents stored in the ChromaDB collection."""
     if collection is None:
-        chroma_client = chromadb.PersistentClient(path=config["chromadb"]["persist_dir"])
-        collection = chroma_client.get_or_create_collection(name=config["chromadb"]["collection_name"])
+        persist_dir = get_chroma_persist_dir()
+        collection_name = get_project_collection_name()
+        chroma_client = chromadb.PersistentClient(path=persist_dir)
+        collection = chroma_client.get_or_create_collection(name=collection_name)
 
     results = collection.get(include=["documents", "metadatas", "embeddings"])
     total = collection.count()
