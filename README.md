@@ -9,7 +9,8 @@
 - **AST-Aware Code Parsing**: Uses Tree-sitter to parse source files into meaningful function and class chunks.
 - **Semantic Codebase Indexing**: Embedded using Google Gemini embeddings (`gemini-embedding-001`) and stored in ChromaDB vector storage.
 - **Autonomous Querying**: Ask questions with `/ask <question>` and Devmate retrieves relevant context using similarity search to generate precise answers.
-- **Flexible Provider Support**: Powered by Google Gemini (`gemini-3.5-flash`) and xAI Grok.
+- **Flexible Provider Support**: Powered by OpenAI (`gpt-4o-mini`, `text-embedding-3-small`), Google Gemini, and xAI Grok.
+- **Cost & Token Efficient**: Optimized for low token consumption with compact retrieval chunks and strict output budgets.
 - **Universal CLI**: Runs anywhere across your project repositories via `pipx`.
 
 ---
@@ -52,8 +53,9 @@ Create a global configuration directory at `~/.devmate/`:
 ### 1. `~/.devmate/.env`
 
 ```ini
-GEMINI_API_KEY=your_gemini_api_key_here
+OPENAI_API_KEY=your_openai_api_key_here
 # Optional:
+GEMINI_API_KEY=your_gemini_api_key_here
 XAI_API_KEY=your_xai_api_key_here
 ```
 
@@ -61,21 +63,17 @@ XAI_API_KEY=your_xai_api_key_here
 
 ```yaml
 llm:
-  provider: gemini
-  gemini:
-    model: gemini-3.5-flash
-    temperature: 0.2
-  grok:
-    model: grok-2-latest
-    temperature: 0.2
+  provider: openai    # openai | gemini | grok
+  model: gpt-4o-mini
+  max_tokens: 1000
 
-embedding:
-  gemini:
-    model: gemini-embedding-001
+embeddings:
+  provider: openai    # openai | gemini | huggingface
+  model: text-embedding-3-small
 
 chromadb:
-  persist_directory: .chromadb
-  collection_name: codebase_semantic_index
+  persist_dir: .chromadb/
+  collection_name: codebase
 ```
 
 ---

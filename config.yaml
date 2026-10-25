@@ -1,10 +1,11 @@
 llm:
-  provider: gemini    # gemini | grok
-  model: gemini-3.5-flash
+  provider: openai    # openai | gemini | grok
+  model: gpt-4o-mini
+  max_tokens: 1000
 
 embeddings:
-  provider: gemini    # gemini | huggingface
-  model: gemini-embedding-001
+  provider: openai    # openai | gemini | huggingface
+  model: text-embedding-3-small
 
 chromadb:
   persist_dir: .chromadb/

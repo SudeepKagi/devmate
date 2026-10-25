@@ -15,7 +15,7 @@ def search_codebase(query: str) -> str:
     """
     console.print(f"[dim] Searching codebase for:[/dim] [bold cyan]\"{query}\"[/bold cyan]")
     logger.info(f"Tool called: search_codebase with query: {query}")
-    chunks = retrieve(query, k=5)
+    chunks = retrieve(query, k=4)
 
     if not chunks:
         console.print(f"[dim] No matches found for \"{query}\"[/dim]")

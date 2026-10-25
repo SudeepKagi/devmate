@@ -6,12 +6,13 @@ from dotenv import load_dotenv
 # Built-in fallback defaults
 DEFAULT_CONFIG = {
     "llm": {
-        "provider": "gemini",
-        "model": "gemini-3.5-flash",
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "max_tokens": 1000,
     },
     "embeddings": {
-        "provider": "gemini",
-        "model": "gemini-embedding-001",
+        "provider": "openai",
+        "model": "text-embedding-3-small",
     },
     "chromadb": {
         "persist_dir": ".chromadb/",
