@@ -25,3 +25,6 @@ memory:
   summarize_at_tokens: 4000
   keep_last_messages: 20
 
+skills:
+  skills_dir: .devmate/skills
+

@@ -14,7 +14,7 @@ def load_devmate_mcp_configs() -> dict:
     CWD is injected at load time so ${CWD} in the config always resolves to the
     directory where devmate was launched.
     """
-    os.environ.setdefault("CWD", str(Path.cwd()))
+    os.environ.setdefault("CWD", str(Path.cwd().as_posix()))
 
     config_path = _CONFIG_PATH
     if not config_path.exists():
@@ -26,10 +26,16 @@ def load_devmate_mcp_configs() -> dict:
 
     raw = json.loads(config_path.read_text(encoding="utf-8"))
 
+    def _replace_env(match):
+        var_name = match.group(1)
+        val = os.getenv(var_name, "")
+        # Normalize Windows backslashes so JSON parsing does not fail on \P, \U, etc.
+        return val.replace("\\", "\\\\")
+
     # Replace ${VAR} placeholders in the config with actual env var values
     resolved = re.sub(
         r"\$\{(\w+)\}",
-        lambda m: os.getenv(m.group(1), ""),
+        _replace_env,
         json.dumps(raw),
     )
 

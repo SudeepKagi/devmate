@@ -50,9 +50,16 @@ async def initialize(checkpointer):
     index = get_or_create_index()
     agent = await build_agent(checkpointer)
     session_id = get_current_session()
+    
+    from devmate.skills.skill_tools import get_registry
+    skills = get_registry().skill_names
+    if skills:
+        console.print(f"[dim]Skills loaded: {', '.join(skills)}[/dim]")
+    console.print("[dim]Guardrails: ContentFilter, PII (email/card/api_key/pwd), HITL approvals enabled[/dim]")
     console.print(f"[dim]Session: {session_id}[/dim]")
     console.print("[green]Ready[/green]\n")
     return llm, embedder, index, agent, session_id
+
 
 
 async def _run_async():

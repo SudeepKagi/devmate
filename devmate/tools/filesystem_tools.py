@@ -88,3 +88,34 @@ def list_directory(path: str = ".") -> str:
 def file_exists(path: str) -> bool:
     """Check if a file or directory exists at the given path."""
     return Path(path).exists()
+
+
+@tool
+def update_file(path: str, old_text: str, new_text: str, replace_all: bool = False) -> str:
+    """Update text in a file by replacing old_text with new_text."""
+    p = Path(path)
+    if not p.exists():
+        return f"Error: File '{path}' does not exist."
+    if not p.is_file():
+        return f"Error: Path '{path}' is not a file."
+    try:
+        content = p.read_text(encoding="utf-8")
+    except Exception as e:
+        return f"Error reading file '{path}': {str(e)}"
+
+    if old_text not in content:
+        return "Error: old_text was not found in file."
+
+    if replace_all:
+        count = content.count(old_text)
+        updated = content.replace(old_text, new_text)
+    else:
+        count = 1
+        updated = content.replace(old_text, new_text, 1)
+
+    try:
+        p.write_text(updated, encoding="utf-8")
+        return f"Updated file '{path}' (replacements: {count})"
+    except Exception as e:
+        return f"Error writing updated file '{path}': {str(e)}"
+

@@ -1,3 +1,4 @@
+import shutil
 from langchain_mcp_adapters.client import MultiServerMCPClient
 from devmate.mcp.devmate_mcp_config import load_devmate_mcp_configs
 from devmate.observability.logger import get_logger
@@ -20,6 +21,15 @@ async def get_devmate_mcp_tools() -> list:
             if not token:
                 logger.warning("GITHUB_TOKEN is not set. Skipping GitHub MCP server.")
                 continue
+
+        # Resolve command path for Windows (e.g., npx -> npx.cmd)
+        cmd = srv_config.get("command")
+        if cmd:
+            resolved_cmd = shutil.which(cmd)
+            if resolved_cmd:
+                srv_config = dict(srv_config)
+                srv_config["command"] = resolved_cmd
+
         active_configs[name] = srv_config
 
     if not active_configs:
