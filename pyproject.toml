@@ -23,7 +23,10 @@ dependencies = [
     "sentence-transformers (>=3.0.0)",
     "qdrant-client (>=1.10.0)",
     "langchain-qdrant (>=1.1.0)",
-    "langchain-groq (>=1.1.0)"
+    "langchain-groq (>=1.1.0)",
+    "fastembed (>=0.9.1)",
+    "langchain-mcp-adapters (>=0.3.2)",
+    "langgraph-checkpoint-sqlite (>=3.1.2)"
 ]
 
 [tool.poetry]
