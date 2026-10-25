@@ -1,7 +1,7 @@
 from langchain.tools import tool
 from rich.console import Console
 
-from devmate.context.retrievers.semantic_chroma import retrieve
+from devmate.context.retrievers.factory import get_retriever
 from devmate.observability.logger import get_logger
 
 logger = get_logger(__name__)
@@ -15,7 +15,8 @@ def search_codebase(query: str) -> str:
     """
     console.print(f"[dim] Searching codebase for:[/dim] [bold cyan]\"{query}\"[/bold cyan]")
     logger.info(f"Tool called: search_codebase with query: {query}")
-    chunks = retrieve(query, k=4)
+    retrieve = get_retriever()
+    chunks = retrieve(query, k=5)
 
     if not chunks:
         console.print(f"[dim] No matches found for \"{query}\"[/dim]")

@@ -19,6 +19,10 @@ def index_codebase(repo_path: str) -> chromadb.Collection:
     chroma_client = chromadb.PersistentClient(path=config["chromadb"]["persist_dir"])
     collection = chroma_client.get_or_create_collection(name=config["chromadb"]["collection_name"])
 
+    if collection.count() > 0:
+        logger.info(f"Loaded existing index with {collection.count()} chunks")
+        return collection
+
     logger.info(f"Starting semantic indexing of {repo_path}")
 
     files = get_source_files(repo_path)
@@ -76,3 +80,35 @@ def reindex_codebase(repo_path: str) -> chromadb.Collection:
     except Exception:
         pass
     return index_codebase(repo_path)
+
+def show_index(collection: chromadb.Collection = None) -> None:
+    """Display documents stored in the ChromaDB collection."""
+    if collection is None:
+        chroma_client = chromadb.PersistentClient(path=config["chromadb"]["persist_dir"])
+        collection = chroma_client.get_or_create_collection(name=config["chromadb"]["collection_name"])
+
+    results = collection.get(include=["documents", "metadatas", "embeddings"])
+    total = collection.count()
+    console.print(f"\n[bold]Semantic Index (ChromaDB) - {total} chunks[/bold]\n")
+
+    if total == 0:
+        console.print("[yellow]Index is empty. Use '/reindex' to index the codebase.[/yellow]\n")
+        return
+
+    display_count = min(10, total)
+    for i in range(display_count):
+        doc = results["documents"][i]
+        meta = results["metadatas"][i]
+        emb = results["embeddings"][i] if results.get("embeddings") else []
+
+        console.print(f"[bold cyan]-- Chunk {i+1} of {total} --------------------------------------[/bold cyan]")
+        console.print(f"  File     : {meta['source']}")
+        console.print(f"  Name     : {meta['name']} ({meta['type']})")
+        console.print(f"  Lines    : {meta['start_line']} - {meta['end_line']}")
+        if emb:
+            console.print(f"  Embedding: [{', '.join(f'{v:.4f}' for v in emb[:5])}...] ({len(emb)} dims)")
+        console.print(f"  Code     :\n[dim]{doc[:300]}[/dim]\n")
+
+    if total > display_count:
+        console.print(f"[dim]... and {total - display_count} more chunk(s).[/dim]\n")
+

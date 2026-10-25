@@ -13,6 +13,12 @@ DEFAULT_CONFIG = {
         "provider": "huggingface",
         "model": "sentence-transformers/all-MiniLM-L6-v2",
     },
+    "vector_store": {
+        "provider": "qdrant",
+    },
+    "qdrant": {
+        "collection_name": "codebase",
+    },
     "chromadb": {
         "persist_dir": ".chromadb/",
         "collection_name": "codebase",
