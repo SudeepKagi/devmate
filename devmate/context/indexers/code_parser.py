@@ -3,21 +3,45 @@ from dataclasses import dataclass
 
 try:
     from tree_sitter import Language, Parser
-    from tree_sitter_languages import get_language, get_parser
 except ImportError:
-    from tree_sitter import Language, Parser
-    def get_parser(language_name: str):
-        if language_name == "python":
-            import tree_sitter_python as tspython
-            return Parser(Language(tspython.language()))
-        raise ValueError(f"Tree-sitter language '{language_name}' parser not installed")
+    Language, Parser = None, None
 
 from devmate.observability.logger import get_logger
 
 logger = get_logger(__name__)
 
+def get_parser(language_name: str):
+    """Dynamically get tree-sitter parser, supporting tree_sitter_languages or individual packages."""
+    if Parser is None:
+        return None
+
+    # Try tree_sitter_languages first if present
+    try:
+        from tree_sitter_languages import get_parser as tsl_get_parser
+        return tsl_get_parser(language_name)
+    except Exception:
+        pass
+
+    # Direct individual language packages
+    try:
+        if language_name == "python":
+            import tree_sitter_python as tspython
+            return Parser(Language(tspython.language()))
+        elif language_name == "javascript":
+            import tree_sitter_javascript as tsjs
+            return Parser(Language(tsjs.language()))
+        elif language_name == "typescript":
+            import tree_sitter_typescript as tsts
+            return Parser(Language(tsts.language_typescript()))
+        elif language_name == "tsx":
+            import tree_sitter_typescript as tsts
+            return Parser(Language(tsts.language_tsx()))
+    except Exception as e:
+        logger.debug(f"Parser for {language_name} unavailable: {e}")
+
+    return None
+
 # Maps file extension -> tree-sitter language name.
-# tree-sitter-languages bundles all these grammars, no extra installs needed.
 EXTENSION_TO_LANGUAGE = {
     ".py": "python",
     ".js": "javascript",
@@ -37,17 +61,15 @@ EXTENSION_TO_LANGUAGE = {
     ".sh": "bash",
 }
 
-# Text/config files have no meaningful AST - we chunk them by line count instead.
-TEXT_EXTENSIONS = {".md", ".txt", ".yaml", ".yml", ".json", ".toml"}
+# Text/config/markup files chunked by line count instead of AST.
+TEXT_EXTENSIONS = {".md", ".txt", ".yaml", ".yml", ".json", ".toml", ".css", ".scss", ".html"}
 ALL_EXTENSIONS = set(EXTENSION_TO_LANGUAGE.keys()) | TEXT_EXTENSIONS
 
 # Sliding window settings for text files and AST fallback.
-# CHUNK_OVERLAP ensures context isn't lost at chunk boundaries.
 CHUNK_SIZE = 50
 CHUNK_OVERLAP = 10
 
 # Tree-sitter node type names that correspond to a named, indexable block.
-# These are consistent across languages - tree-sitter uses the same names where possible.
 BLOCK_NODE_TYPES = {
     "function_definition",
     "function_declaration",
@@ -58,7 +80,7 @@ BLOCK_NODE_TYPES = {
     "method_declaration",
     "constructor_declaration",
     "interface_declaration",
-    "function_item",  # Rust uses this instead of function_definition
+    "function_item",  # Rust
 }
 
 @dataclass
@@ -71,7 +93,7 @@ class ParsedChunk:
     end_line: int
 
 def parse_file(filepath: str) -> list[ParsedChunk]:
-    """Entry point - routes to AST parsing or sliding window based on file type."""
+    """Entry point - routes to AST parsing or falls back safely to sliding window."""
     ext = Path(filepath).suffix.lower()
 
     if ext in TEXT_EXTENSIONS:
@@ -79,25 +101,35 @@ def parse_file(filepath: str) -> list[ParsedChunk]:
         return _sliding_window(lines, filepath)
 
     language_name = EXTENSION_TO_LANGUAGE.get(ext)
-    if not language_name:
-        raise ValueError(f"Unsupported file type: {ext}")
+    if language_name:
+        try:
+            parser = get_parser(language_name)
+            if parser is not None:
+                source = Path(filepath).read_text(encoding="utf-8", errors="ignore")
+                chunks = _parse_with_treesitter(source, filepath, language_name, parser)
+                if chunks:
+                    return chunks
+            else:
+                logger.debug(f"No Tree-sitter parser installed for '{language_name}', falling back to sliding window")
+        except Exception as e:
+            logger.warning(f"AST parsing failed for {filepath} ({e}), falling back to sliding window")
 
-    source = Path(filepath).read_text(encoding="utf-8", errors="ignore")
-    return _parse_with_treesitter(source, filepath, language_name)
+    # Safe fallback: chunk file lines so no code is skipped
+    lines = Path(filepath).read_text(encoding="utf-8", errors="ignore").splitlines()
+    return _sliding_window(lines, filepath)
 
-def _parse_with_treesitter(source: str, filepath: str, language_name: str) -> list[ParsedChunk]:
+def _parse_with_treesitter(source: str, filepath: str, language_name: str, parser) -> list[ParsedChunk]:
     """Parse source with the appropriate tree-sitter grammar and extract named blocks."""
     logger.info(f"Parsing {language_name} file: {filepath}")
-    parser = get_parser(language_name)
     tree = parser.parse(source.encode())
     lines = source.splitlines()
 
     chunks = []
     _walk(tree.root_node, source, filepath, chunks, depth=0)
 
-    # If the AST yielded nothing (e.g. a file with only imports), fall back to line chunks
+    # If the AST yielded nothing (e.g. a file with only imports/variables), fall back to line chunks
     if not chunks:
-        logger.warning(f"No AST blocks found in {filepath}, falling back to sliding window")
+        logger.debug(f"No AST blocks found in {filepath}, falling back to sliding window")
         return _sliding_window(lines, filepath)
 
     logger.info(f"Parsed {len(chunks)} chunks from {filepath}")
@@ -109,18 +141,24 @@ def _walk(node, source: str, filepath: str, chunks: list, depth: int):
     descending - this keeps chunks at the top level and avoids duplicating nested functions.
     """
     if node.type in BLOCK_NODE_TYPES:
+        target = node
+        # For arrow functions assigned to variables (e.g. const Hero = () => {}), include parent declaration
+        if node.type == "arrow_function" and node.parent and node.parent.type == "variable_declarator":
+            if node.parent.parent and node.parent.parent.type in ("lexical_declaration", "variable_declaration"):
+                target = node.parent.parent
+
         name = _extract_name(node, source)
-        content = source[node.start_byte:node.end_byte]
+        content = source[target.start_byte:target.end_byte]
         chunk_type = "class" if "class" in node.type else "function"
         chunks.append(ParsedChunk(
             name=name,
             type=chunk_type,
             content=content,
             source=filepath,
-            start_line=node.start_point[0] + 1,
-            end_line=node.end_point[0] + 1,
+            start_line=target.start_point[0] + 1,
+            end_line=target.end_point[0] + 1,
         ))
-        logger.debug(f"  Found {chunk_type} '{name}' (lines {node.start_point[0]+1}-{node.end_point[0]+1})")
+        logger.debug(f"  Found {chunk_type} '{name}' (lines {target.start_point[0]+1}-{target.end_point[0]+1})")
         return  # stop here - don't index nested functions/classes as separate chunks
 
     for child in node.children:
@@ -131,15 +169,20 @@ def _extract_name(node, source: str) -> str:
     for child in node.children:
         if child.type in ("identifier", "name", "property_identifier"):
             return source[child.start_byte:child.end_byte]
+    # Check parent if it's a variable declarator (e.g. const Hero = () => ...)
+    if node.parent and node.parent.type == "variable_declarator":
+        for child in node.parent.children:
+            if child.type in ("identifier", "name"):
+                return source[child.start_byte:child.end_byte]
     return node.type  # fallback to node type if no name found
 
 def _sliding_window(lines: list[str], filepath: str) -> list[ParsedChunk]:
     """
     Split lines into overlapping fixed-size chunks.
-    Used for text files and as a fallback when AST parsing finds nothing.
+    Used for text/markup files and as a fallback when AST parsing is unavailable or finds nothing.
     """
     if not lines:
-        raise ValueError(f"Empty file: {filepath}")
+        return []
 
     chunks = []
     step = CHUNK_SIZE - CHUNK_OVERLAP

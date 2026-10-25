@@ -9,7 +9,7 @@
 - **AST-Aware Code Parsing**: Uses Tree-sitter to parse source files into meaningful function and class chunks.
 - **Semantic Codebase Indexing**: Embedded using Google Gemini embeddings (`gemini-embedding-001`) and stored in ChromaDB vector storage.
 - **Autonomous Querying**: Ask questions with `/ask <question>` and Devmate retrieves relevant context using similarity search to generate precise answers.
-- **Flexible Provider Support**: Powered by Google Gemini (`gemini-2.5-flash`) and xAI Grok.
+- **Flexible Provider Support**: Powered by Google Gemini (`gemini-3.8-flash`) and xAI Grok.
 - **Universal CLI**: Runs anywhere across your project repositories via `pipx`.
 
 ---
@@ -63,7 +63,7 @@ XAI_API_KEY=your_xai_api_key_here
 llm:
   provider: gemini
   gemini:
-    model: gemini-2.5-flash
+    model: gemini-3.8-flash
     temperature: 0.2
   grok:
     model: grok-2-latest
