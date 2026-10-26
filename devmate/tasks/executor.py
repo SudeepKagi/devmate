@@ -5,7 +5,13 @@ from pydantic import BaseModel
 
 from langchain.agents import create_agent
 from langchain.chat_models import init_chat_model
-from deepeval.tracing import observe
+try:
+    from deepeval.tracing import observe
+except ImportError:
+    def observe(*args, **kwargs):
+        def decorator(fn):
+            return fn
+        return decorator
 
 from devmate.config import config
 from devmate.tools.filesystem_tools import (

@@ -3,7 +3,16 @@ from __future__ import annotations
 from pydantic import BaseModel
 from langchain.agents import create_agent
 from langchain.chat_models import init_chat_model
-from deepeval.tracing import observe, update_current_trace
+try:
+    from deepeval.tracing import observe, update_current_trace
+except ImportError:
+    def observe(*args, **kwargs):
+        def decorator(fn):
+            return fn
+        return decorator
+
+    def update_current_trace(*args, **kwargs):
+        pass
 
 from devmate.config import config
 from devmate.tasks.task_store import TaskType

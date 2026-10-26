@@ -1,4 +1,10 @@
-from deepeval.tracing import observe
+try:
+    from deepeval.tracing import observe
+except ImportError:
+    def observe(*args, **kwargs):
+        def decorator(fn):
+            return fn
+        return decorator
 
 from devmate.config import config
 from devmate.agent.tools import reset_search_history
