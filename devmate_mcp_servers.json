@@ -19,6 +19,14 @@
         "${CWD}"
       ],
       "transport": "stdio"
+    },
+    "terminal": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "bash-mcp"
+      ],
+      "transport": "stdio"
     }
   }
 }

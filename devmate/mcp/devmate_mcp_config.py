@@ -18,11 +18,15 @@ def load_devmate_mcp_configs() -> dict:
 
     config_path = _CONFIG_PATH
     if not config_path.exists():
-        fallback_path = Path.cwd() / "devmate_mcp_servers.json"
-        if fallback_path.exists():
-            config_path = fallback_path
+        repo_root_path = Path(__file__).parent.parent.parent / "devmate_mcp_servers.json"
+        if repo_root_path.exists():
+            config_path = repo_root_path
         else:
-            return {}
+            fallback_path = Path.cwd() / "devmate_mcp_servers.json"
+            if fallback_path.exists():
+                config_path = fallback_path
+            else:
+                return {}
 
     raw = json.loads(config_path.read_text(encoding="utf-8"))
 
