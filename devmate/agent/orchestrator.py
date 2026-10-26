@@ -40,7 +40,7 @@ async def handle_query(
     reset_search_history()
     agent_config = {
         "configurable": {"thread_id": thread_id},
-        "recursion_limit": 25,
+        "recursion_limit": 100,
     }
     try:
         response = await agent.ainvoke(

@@ -77,7 +77,6 @@ async def initialize(checkpointer):
     skills = get_registry().skill_names
     if skills:
         console.print(f"[dim]Skills loaded: {', '.join(skills)}[/dim]")
-    console.print("[dim]Guardrails: ContentFilter, PII, HITL approvals enabled[/dim]")
     console.print(f"[dim]Session: {session_id}[/dim]")
     console.print("[green]Ready[/green]\n")
     return llm, embedder, index, agent, session_id, observer, semantic_cache, cache_domain

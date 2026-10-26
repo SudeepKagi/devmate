@@ -5,6 +5,10 @@
 .chromadb/
 .qdrant/
 .memory/
+.devmate/chromadb/
+.devmate/memory/
+.devmate/*.db
+*.db
 
 # Python
 __pycache__/

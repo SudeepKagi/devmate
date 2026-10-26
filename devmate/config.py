@@ -80,8 +80,9 @@ def load_config() -> dict:
 
     return cfg
 
-# Load .env: local project first, then global ~/.devmate/.env
+# Load .env: local project first, then repository root, then global ~/.devmate/.env
 load_dotenv(Path.cwd() / ".env")
+load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 load_dotenv(Path.home() / ".devmate" / ".env")
 
 config = load_config()
