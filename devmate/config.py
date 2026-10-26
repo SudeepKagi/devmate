@@ -6,26 +6,45 @@ from dotenv import load_dotenv
 # Built-in fallback defaults
 DEFAULT_CONFIG = {
     "llm": {
-        "provider": "groq",
-        "model": "openai/gpt-oss-120b",
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "judge_model": "gpt-4o-mini",
     },
     "embeddings": {
-        "provider": "huggingface",
-        "model": "sentence-transformers/all-MiniLM-L6-v2",
+        "provider": "openai",
+        "model": "text-embedding-3-small",
+        "dims": 1536,
     },
     "vector_store": {
-        "provider": "qdrant",
-    },
-    "qdrant": {
-        "collection_name": "codebase",
+        "provider": "chroma",
+        "retrieval_mode": "dense",
     },
     "chromadb": {
-        "persist_dir": ".chromadb/",
+        "persist_dir": ".devmate/chromadb/",
         "collection_name": "codebase",
     },
-    "elasticsearch": {
-        "url": "http://localhost:9200",
-        "index_name": "codebase",
+    "qdrant": {
+        "collection_name": "devmate",
+    },
+    "semantic_cache": {
+        "enabled": True,
+        "redis_url": "redis://localhost:6379",
+        "threshold": 0.85,
+        "ttl": 86400,
+    },
+    "tasks": {
+        "db_path": ".devmate/tasks.db",
+    },
+    "memory": {
+        "db_path": ".devmate/memory/memory.db",
+        "summarize_at_tokens": 4000,
+        "keep_last_messages": 20,
+    },
+    "skills": {
+        "skills_dir": ".devmate/skills",
+    },
+    "rag": {
+        "mode": "semantic",
     },
 }
 
@@ -88,7 +107,7 @@ def get_project_collection_name(repo_path: str = None) -> str:
 
 def get_chroma_persist_dir(repo_path: str = None) -> str:
     """Return absolute path for Chroma persist_dir scoped to the target repo."""
-    configured = config.get("chromadb", {}).get("persist_dir", ".chromadb/")
+    configured = config.get("chromadb", {}).get("persist_dir", ".devmate/chromadb/")
     p = Path(configured)
     if not p.is_absolute():
         p = Path(repo_path or Path.cwd()).resolve() / p

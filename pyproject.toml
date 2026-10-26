@@ -1,7 +1,7 @@
 [project]
 name = "devmate"
 version = "0.1.0"
-description = "Autonomous coding agent CLI based on Educosys Claude Code"
+description = "Autonomous RAG-powered coding agent CLI"
 authors = [
     {name = "SudeepKagi", email = "sudeepskagi@gmail.com"}
 ]
@@ -34,15 +34,16 @@ dependencies = [
     "redisvl (>=0.23.0,<0.29.0) ; python_version < \"3.15\""
 ]
 
+[project.scripts]
+devmate = "devmate.main:run"
+
 [tool.poetry]
 packages = [
-    {include = "educosys_claude"},
     {include = "devmate"}
 ]
 
 [tool.poetry.scripts]
-educosys_claude = "educosys_claude.main:run"
-devmate = "educosys_claude.main:run"
+devmate = "devmate.main:run"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]

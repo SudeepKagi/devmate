@@ -27,8 +27,8 @@ from deepeval.dataset import EvaluationDataset, Golden
 from deepeval.tracing import observe, update_current_trace
 
 from conftest import SAMPLE_PROJECT_DIR
-from educosys_claude.tasks.executor import run_subtask_agent
-from educosys_claude.tasks.planner import create_plan
+from devmate.tasks.executor import run_subtask_agent
+from devmate.tasks.planner import create_plan
 
 from metrics import TASK_PLANNING_AGENT_METRICS
 
@@ -41,21 +41,16 @@ dataset.add_goldens_from_json_file(
 
 @observe(type="agent", name="task_planning_pipeline")
 async def run_traced_task_planning_pipeline(goal: str, seed_existing_project: bool = False) -> str:
-    """Real app entry point: plan the goal, then execute its first task —
-    the same plan -> execute sequence handle_plan_command runs per task,
-    minus human approval and DB persistence (out of scope for evals).
+    """Real app entry point: plan the goal, then execute its first task.
 
     Execution is confined to a scratch temp directory so the generated (or
-    modified) project files never land inside this repository. When
-    seed_existing_project is True, that scratch directory starts as a copy
-    of fixtures/sample_project instead of empty, so the goal is "add to/fix
-    an existing codebase" rather than "build from scratch".
+    modified) project files never land inside this repository.
     """
     plan = create_plan(goal)
     first_task = plan.tasks[0].model_dump(mode="json")
 
     original_cwd = os.getcwd()
-    with tempfile.TemporaryDirectory(prefix="educosys_eval_") as scratch_dir:
+    with tempfile.TemporaryDirectory(prefix="devmate_eval_") as scratch_dir:
         if seed_existing_project:
             shutil.copytree(SAMPLE_PROJECT_DIR, scratch_dir, dirs_exist_ok=True)
         os.chdir(scratch_dir)

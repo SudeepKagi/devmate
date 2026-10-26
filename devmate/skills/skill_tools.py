@@ -17,11 +17,6 @@ def get_registry() -> SkillRegistry:
     if _registry is None:
         configured_dir = config.get("skills", {}).get("skills_dir", ".devmate/skills")
         skills_dir = Path.cwd() / configured_dir
-        if not skills_dir.exists():
-            # Check fallback to .educosys/skills
-            alt_dir = Path.cwd() / ".educosys/skills"
-            if alt_dir.exists():
-                skills_dir = alt_dir
         _registry = SkillRegistry(skills_dir)
         _registry.load()
         logger.info(f"SkillRegistry initialized from: {skills_dir}")

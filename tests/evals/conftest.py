@@ -2,7 +2,7 @@
 
 Every RAG/codebase-agent eval in this directory is graded against
 fixtures/sample_project — a small standalone project unrelated to
-educosys_claude's own source. That mirrors real usage: nobody points this
+devmate's own source. That mirrors real usage: nobody points this
 coding agent at itself, they point it at another project (or an empty one).
 
 This fixture indexes sample_project into a throwaway, session-scoped ChromaDB
@@ -15,8 +15,8 @@ from pathlib import Path
 
 import pytest
 
-from educosys_claude.config import config
-from educosys_claude.context.indexers.factory import get_indexer
+from devmate.config import config
+from devmate.context.indexers.factory import get_indexer
 
 SAMPLE_PROJECT_DIR = Path(__file__).parent / "fixtures" / "sample_project"
 
@@ -26,9 +26,9 @@ def _index_sample_project():
     original_persist_dir = config["chromadb"]["persist_dir"]
     original_collection = config["chromadb"]["collection_name"]
 
-    eval_persist_dir = tempfile.mkdtemp(prefix="educosys_eval_chromadb_")
+    eval_persist_dir = tempfile.mkdtemp(prefix="devmate_eval_chromadb_")
     config["chromadb"]["persist_dir"] = eval_persist_dir
-    config["chromadb"]["collection_name"] = "educosys_claude_eval_sample_project"
+    config["chromadb"]["collection_name"] = "devmate_eval_sample_project"
 
     get_indexer()(str(SAMPLE_PROJECT_DIR))
 

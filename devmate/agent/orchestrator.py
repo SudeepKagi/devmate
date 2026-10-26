@@ -1,3 +1,6 @@
+from deepeval.tracing import observe
+
+from devmate.config import config
 from devmate.agent.tools import reset_search_history
 from devmate.safety.guardrails import PIIDetectionError
 from devmate.safety.hitl import handle_interrupts
@@ -6,9 +9,28 @@ from devmate.observability.logger import get_logger
 logger = get_logger(__name__)
 
 
-async def handle_query(agent, question: str, thread_id: str) -> str:
-    """Entry point for all user queries - invokes the agent with HITL interrupt and Guardrail handling."""
+@observe(type="agent", name="codebase_agent")
+async def handle_query(
+    agent,
+    question: str,
+    thread_id: str,
+    semantic_cache=None,
+    cache_domain: str | None = None,
+) -> str:
+    """Entry point for all user queries - invokes agent with semantic caching, HITL interrupts, and guardrails."""
     logger.info(f"Handling query for session {thread_id}: {question}")
+    model = config.get("llm", {}).get("model", "gpt-4o-mini")
+
+    if semantic_cache is not None and cache_domain is not None:
+        try:
+            cached_response = await semantic_cache.get(question, domain=cache_domain, model=model)
+        except Exception as e:
+            logger.warning(f"Semantic cache lookup failed, falling back to agent: {e}")
+            cached_response = None
+        if cached_response is not None:
+            logger.info("Semantic cache HIT - skipping agent/tool calls")
+            return cached_response
+
     reset_search_history()
     agent_config = {
         "configurable": {"thread_id": thread_id},
@@ -26,6 +48,7 @@ async def handle_query(agent, question: str, thread_id: str) -> str:
         if hasattr(response, "value"):
             response = response.value
 
+        answer = ""
         if isinstance(response, dict) and "messages" in response and response["messages"]:
             content = response["messages"][-1].content
             if isinstance(content, list):
@@ -35,10 +58,20 @@ async def handle_query(agent, question: str, thread_id: str) -> str:
                         parts.append(item["text"])
                     elif isinstance(item, str):
                         parts.append(item)
-                return "\n".join(parts)
-            return str(content)
+                answer = "\n".join(parts)
+            else:
+                answer = str(content)
+        else:
+            answer = str(response)
 
-        return str(response)
+        if semantic_cache is not None and cache_domain is not None and answer:
+            try:
+                ttl = config.get("semantic_cache", {}).get("ttl", 86400)
+                await semantic_cache.put(question, answer, domain=cache_domain, model=model, ttl=ttl)
+            except Exception as e:
+                logger.warning(f"Semantic cache store failed: {e}")
+
+        return answer
 
     except PIIDetectionError as error:
         logger.warning(f"Guardrail blocked request: {error}")

@@ -2,21 +2,15 @@ from __future__ import annotations
 
 from rich.console import Console
 
-from educosys_claude.tasks.task_store import SQLiteTaskStore
-from educosys_claude.observability.logger import get_logger
+from devmate.tasks.task_store import SQLiteTaskStore
+from devmate.observability.logger import get_logger
 
 logger = get_logger(__name__)
 console = Console()
 
 
 class RecoveryManager:
-    """
-    Detects and resets tasks left IN_PROGRESS when the process crashed.
-
-    In single-process serial execution, any IN_PROGRESS task at startup is
-    unconditionally orphaned — the process that was running it is gone.
-    No heartbeat or timing check is needed.
-    """
+    """Detects and resets tasks left IN_PROGRESS when the process crashed."""
 
     def __init__(self, store: SQLiteTaskStore) -> None:
         self.store = store
@@ -24,8 +18,8 @@ class RecoveryManager:
     def recover(self, project_id: str) -> int:
         """
         Reset every task still marked IN_PROGRESS for this project.
-          - retries left  → reset to PENDING
-          - no retries    → mark FAILED
+          - retries left  -> reset to PENDING
+          - no retries    -> mark FAILED
         Returns number of tasks processed.
         """
         with self.store._conn() as conn:
@@ -49,7 +43,7 @@ class RecoveryManager:
                     )
                     console.print(
                         f"[yellow]🔄 Recovered:[/yellow] {task['id']} ({task['title']}) "
-                        f"→ PENDING (retry {task['retry_count'] + 1}/{task['max_retries']})"
+                        f"-> PENDING (retry {task['retry_count'] + 1}/{task['max_retries']})"
                     )
                 else:
                     conn.execute(
@@ -59,7 +53,7 @@ class RecoveryManager:
                            WHERE id = ?""",
                         (task["id"],)
                     )
-                    console.print(f"[red]❌ Max retries exhausted:[/red] {task['id']} → FAILED")
+                    console.print(f"[red]❌ Max retries exhausted:[/red] {task['id']} -> FAILED")
 
         count = len(crashed)
         if count:

@@ -9,9 +9,9 @@ from redisvl.query import VectorQuery
 from redisvl.query.filter import Tag
 from redisvl.redis.utils import array_to_buffer
 
-from educosys_claude.config import config
-from educosys_claude.llm.factory import get_embedder
-from educosys_claude.observability.logger import get_logger
+from devmate.config import config
+from devmate.llm.factory import get_embedder
+from devmate.observability.logger import get_logger
 
 logger = get_logger(__name__)
 
@@ -42,13 +42,7 @@ def _build_index_schema(dims: int) -> dict:
 
 
 class SemanticCache:
-    """Async Redis-backed semantic cache for /ask responses.
-
-    Embeddings come from the app's own get_embedder() (so the cache follows
-    whichever provider config.yaml selects) and lookups filter on both
-    domain and model, since this app can switch LLM providers at runtime
-    and a cached answer from one model shouldn't be served under another.
-    """
+    """Async Redis-backed semantic cache for /ask responses."""
 
     def __init__(self, redis_url: str, threshold: float, dims: int):
         self.client = Redis.from_url(redis_url)
@@ -59,8 +53,6 @@ class SemanticCache:
         )
 
     async def setup(self) -> None:
-        # overwrite=False: reuse the index if it already exists from a
-        # previous run instead of wiping cached entries on every startup.
         await self.index.create(overwrite=False)
 
     async def _embed(self, text: str) -> list[float]:
@@ -87,8 +79,6 @@ class SemanticCache:
         similarity = 1 - float(hit["vector_distance"])
         if similarity >= self.threshold:
             return hit["response"]
-        # A candidate exists but isn't close enough - treat as a miss rather
-        # than returning a possibly-wrong cached answer.
         return None
 
     async def put(self, query: str, response: str, domain: str, model: str, ttl: int) -> None:
@@ -115,25 +105,19 @@ class SemanticCache:
 
 
 def get_repo_domain(repo_path: str) -> str:
-    """Stable cache domain derived from the repo path, so cached entries
-    persist across restarts for the same repo without colliding with
-    entries from a different repo indexed by the same tool."""
+    """Stable cache domain derived from repo path."""
     return hashlib.sha256(repo_path.encode()).hexdigest()[:16]
 
 
 async def build_semantic_cache() -> SemanticCache | None:
-    """Build and initialize the semantic cache per config.yaml.
-
-    Returns None (and logs why) if caching is disabled or Redis is
-    unreachable, so the caller can run without caching instead of crashing.
-    """
+    """Build and initialize semantic cache with graceful offline fallback."""
     cache_config = config.get("semantic_cache", {})
     if not cache_config.get("enabled", False):
-        logger.info("Semantic cache: disabled (semantic_cache.enabled is false in config.yaml)")
+        logger.info("Semantic cache: disabled (semantic_cache.enabled is false in config)")
         return None
 
     try:
-        dims = config["embeddings"]["dims"]
+        dims = config.get("embeddings", {}).get("dims", 1536)
         cache = SemanticCache(
             redis_url=cache_config.get("redis_url", "redis://localhost:6379"),
             threshold=cache_config.get("threshold", 0.85),

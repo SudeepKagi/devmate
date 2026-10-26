@@ -1,17 +1,25 @@
 # Devmate 🤖
 
-**Devmate** is an autonomous AI coding assistant CLI designed to index, understand, and answer questions about any codebase using semantic search and cutting-edge LLMs.
+**Devmate** is an autonomous AI software engineering and coding assistant CLI. It indexes, searches, understands, and implements features across your codebase using semantic search, autonomous multi-task execution, real-time background file watching, and low-cost OpenAI models.
 
 ---
 
 ## ✨ Features
 
-- **AST-Aware Code Parsing**: Uses Tree-sitter to parse source files into meaningful function and class chunks.
-- **Semantic Codebase Indexing**: Embedded using Google Gemini embeddings (`gemini-embedding-001`) and stored in ChromaDB vector storage.
-- **Autonomous Querying**: Ask questions with `/ask <question>` and Devmate retrieves relevant context using similarity search to generate precise answers.
-- **Flexible Provider Support**: Powered by xAI Grok (`grok-2-latest`), OpenAI, and Google Gemini.
-- **Local Zero-Cost Embeddings**: Uses HuggingFace (`sentence-transformers/all-MiniLM-L6-v2`) locally — zero rate limits, no API key needed for embeddings.
-- **Universal CLI**: Runs anywhere across your project repositories via `pipx`.
+- **AST-Aware Code Parsing**: Uses Tree-sitter to parse source files into meaningful semantic function, class, and method chunks.
+- **Incremental Semantic Indexing**: Automatically tracks file modification times (`mtime`) in ChromaDB to only embed new or changed files, minimizing API costs.
+- **Real-Time Background Watchdog**: Background watchdog observer keeps your vector index up-to-date as files are created, modified, or deleted without restarting.
+- **Autonomous Task Planning & Execution (`/plan <goal>`)**:
+  - Breaks high-level software goals into a concrete DAG of subtasks (5–20 tasks).
+  - Human-in-the-loop interactive review & approval (`[A]pprove`, `[M]odify`, `[R]eject`).
+  - Persistent SQLite state store (`.devmate/tasks.db`) with atomic state transitions and crash recovery.
+  - Subtask agents equipped with focused, least-privilege toolsets.
+  - LLM-as-judge quality verification verifying acceptance criteria before marking tasks completed.
+- **Async Semantic Response Cache**: Redis and redisvl semantic caching with cosine similarity thresholding to serve repeated or similar queries instantly with zero LLM API cost. Graceful fallback when Redis is offline.
+- **Extensible Skills Architecture**: Load markdown-defined workflows, prompt guides, and scripts dynamically on demand (`.devmate/skills/`).
+- **Model Context Protocol (MCP)**: Seamlessly integrates with external MCP servers (e.g. GitHub MCP).
+- **Cost-Optimized**: Pre-configured for low-cost OpenAI models (`gpt-4o-mini` for chat/judge and `text-embedding-3-small` for embeddings).
+- **Production Evaluator Suites**: Automated DeepEval evaluation pipelines covering RAG retrieval precision/recall and agentic multi-turn task completion.
 
 ---
 
@@ -19,7 +27,7 @@
 
 ### Prerequisites
 
-- Python 3.10+ (tested on Python 3.14)
+- Python 3.12+ (tested on Python 3.14)
 - [pipx](https://pypa.github.io/pipx/) or Poetry
 
 ### Installation
@@ -29,12 +37,6 @@ Install globally using `pipx`:
 ```bash
 git clone https://github.com/SudeepKagi/devmate.git
 cd devmate
-pipx install .
-```
-
-For development (editable install):
-
-```bash
 pipx install . --editable
 ```
 
@@ -42,44 +44,55 @@ pipx install . --editable
 
 ## ⚙️ Configuration
 
-Create a global configuration directory at `~/.devmate/`:
+Devmate reads configuration from:
+1. Current working directory `config.yaml`
+2. `~/.devmate/config.yaml`
+3. Built-in defaults
 
-```
-~/.devmate/
-├── .env
-└── config.yaml
-```
+### 1. `.env`
 
-### 1. `~/.devmate/.env`
+Add your OpenAI API key to `.env` or `~/.devmate/.env`:
 
 ```ini
-XAI_API_KEY=your_xai_grok_key_here
-# Optional:
-OPENAI_API_KEY=your_openai_key_here
-GEMINI_API_KEY=your_gemini_key_here
+OPENAI_API_KEY=your_openai_api_key_here
 ```
 
-### 2. `~/.devmate/config.yaml`
+### 2. `config.yaml`
 
 ```yaml
 llm:
-  provider: grok    # grok | openai | gemini
-  model: grok-2-latest
+  provider: openai
+  model: gpt-4o-mini
+  judge_model: gpt-4o-mini
 
 embeddings:
-  provider: huggingface    # huggingface (100% local, zero rate limits) | openai | gemini
-  model: sentence-transformers/all-MiniLM-L6-v2
+  provider: openai
+  model: text-embedding-3-small
+  dims: 1536
+
+vector_store:
+  provider: chroma
+  retrieval_mode: dense
 
 chromadb:
-  persist_dir: .chromadb/
+  persist_dir: .devmate/chromadb/
   collection_name: codebase
+
+tasks:
+  db_path: .devmate/tasks.db
+
+semantic_cache:
+  enabled: true
+  redis_url: redis://localhost:6379
+  threshold: 0.85
+  ttl: 86400
 ```
 
 ---
 
 ## 💻 Usage
 
-Navigate to any codebase directory in your terminal and launch `devmate`:
+Launch `devmate` in any codebase directory:
 
 ```bash
 devmate
@@ -89,11 +102,28 @@ devmate
 
 | Command | Description |
 |---|---|
-| `/ask <query>` | Ask questions about the codebase using semantic retrieval |
+| `/ask <question>` | Ask questions about the codebase using semantic retrieval |
+| `/plan <goal>` | Generate, review, approve, and autonomously execute a plan |
+| `/task_status` | Show task status and progress for the active plan |
+| `/show_index` | View sample chunks currently indexed in ChromaDB |
 | `/reindex` | Force a fresh re-indexing of all files in the current repository |
-| `/show_semantic_index` | View sample chunks currently indexed in ChromaDB |
+| `/new_session` | Start a fresh conversational session |
+| `/switch <session_id>` | Switch to a prior conversational session |
+| `/session` | Display current session ID |
 | `/help` | Show available commands |
 | `/exit` / `quit` | Exit the CLI session |
+
+---
+
+## 🧪 Evaluations
+
+Run DeepEval test suites:
+
+```bash
+deepeval test run tests/evals/test_codebase_agent.py
+deepeval test run tests/evals/test_rag_pipeline.py
+deepeval test run tests/evals/test_task_planning_agent.py
+```
 
 ---
 

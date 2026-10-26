@@ -9,7 +9,7 @@ agent reasoning.
 
 Graded against fixtures/sample_project (indexed once by conftest.py's
 session fixture into an isolated ChromaDB collection), not against
-educosys_claude's own source — in real usage this tool is always pointed at
+devmate's own source — in real usage this tool is always pointed at
 someone else's project (or an empty one), never at itself.
 
 The dataset (dataset_rag.json) is hand-authored, not generated with
@@ -23,7 +23,7 @@ from deepeval import assert_test
 from deepeval.dataset import EvaluationDataset, Golden
 from deepeval.test_case import LLMTestCase
 
-from educosys_claude.context.retrievers.factory import get_retriever
+from devmate.context.retrievers.factory import get_retriever
 
 from metrics import RAG_METRICS
 

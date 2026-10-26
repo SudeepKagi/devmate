@@ -3,19 +3,17 @@ from __future__ import annotations
 from rich.console import Console
 from rich.table import Table
 
-from educosys_claude.tasks.planner import ExecutionPlan, PlannedTask
+from devmate.tasks.planner import ExecutionPlan, PlannedTask
 
 console = Console()
 
 
 def present_plan_for_approval(plan: ExecutionPlan) -> ExecutionPlan | None:
     """
-    Render the plan as a Rich table and prompt the user to:
-      [A] Approve — returns the plan as-is
-      [M] Modify  — edit a task description in-place and re-render
-      [R] Reject  — returns None so the caller re-plans with feedback
-
-    Loop continues until the user approves or rejects.
+    Render the plan as a Rich table and prompt user to:
+      [A] Approve
+      [M] Modify task description
+      [R] Reject and re-plan
     """
     while True:
         _render_plan(plan)
@@ -49,11 +47,11 @@ def _render_plan(plan: ExecutionPlan) -> None:
     console.print(f"[dim]Stack: {', '.join(plan.tech_stack)} | Est: {plan.total_estimated_hours}h[/dim]\n")
 
     table = Table(show_header=True, header_style="bold")
-    table.add_column("ID",          style="dim",    width=12)
-    table.add_column("Type",        width=10)
-    table.add_column("Title",       width=32)
-    table.add_column("Depends on",  width=20)
-    table.add_column("Output files",width=30)
+    table.add_column("ID", style="dim", width=12)
+    table.add_column("Type", width=10)
+    table.add_column("Title", width=32)
+    table.add_column("Depends on", width=20)
+    table.add_column("Output files", width=30)
 
     for task in plan.tasks:
         table.add_row(

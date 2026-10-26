@@ -32,10 +32,12 @@ Guidelines:
 5. If you cannot find the answer in the codebase, say so explicitly."""
 
 
-async def build_agent(checkpointer=None, mcp_tools=None, enable_safety: bool = True):
+async def build_agent(checkpointer=None, mcp_tools=None, enable_safety: bool = True, include_mcp_tools: bool = True):
     """Create and return a LangChain agent with persistent memory, tools, skills, and safety guardrails."""
     llm = get_llm()
-    if mcp_tools is None:
+    if not include_mcp_tools:
+        mcp_tools = []
+    elif mcp_tools is None:
         mcp_tools = await get_devmate_mcp_tools()
 
     # Build dynamic skills prompt

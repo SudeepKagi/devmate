@@ -5,9 +5,9 @@ from langchain.agents import create_agent
 from langchain.chat_models import init_chat_model
 from deepeval.tracing import observe, update_current_trace
 
-from educosys_claude.config import config
-from educosys_claude.tasks.task_store import TaskType
-from educosys_claude.observability.logger import get_logger
+from devmate.config import config
+from devmate.tasks.task_store import TaskType
+from devmate.observability.logger import get_logger
 
 logger = get_logger(__name__)
 
@@ -41,7 +41,7 @@ Rules:
 - 5 to 20 tasks
 - Task IDs must be stable snake_case: task_001, task_002, ...
 - depends_on must reference valid task IDs in the same plan
-- Ordering must form a valid DAG (no cycles): architecture → schema → config → core → tests → integration
+- Ordering must form a valid DAG (no cycles): architecture -> schema -> config -> core -> tests -> integration
 - output_files must list every file the task will write to disk
 - acceptance_criteria must be concrete and verifiable (3-5 items per task)
 - task_type must be one of: design, implement, test, review, integrate, configure
@@ -50,9 +50,9 @@ Rules:
 
 @observe(type="agent", name="task_planner")
 def create_plan(goal: str, extra_context: str = "") -> ExecutionPlan:
-    """Call the LLM planner and return a structured ExecutionPlan."""
-    provider = config["llm"]["provider"]
-    model    = config["llm"]["model"]
+    """Call the LLM planner and return a structured ExecutionPlan using low-cost model."""
+    provider = config.get("llm", {}).get("provider", "openai")
+    model = config.get("llm", {}).get("model", "gpt-4o-mini")
 
     llm = init_chat_model(f"{provider}:{model}", temperature=0)
 
@@ -71,7 +71,5 @@ def create_plan(goal: str, extra_context: str = "") -> ExecutionPlan:
     plan: ExecutionPlan = result["structured_response"]
     logger.info(f"Plan created: {plan.project_name} with {len(plan.tasks)} tasks")
 
-    # Traces need a string actual_output for evals; the plan itself stays structured
-    # for callers (task_store, approval UI, etc).
     update_current_trace(input=user_message, output=plan.model_dump_json(indent=2))
     return plan

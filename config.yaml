@@ -1,7 +1,23 @@
+llm:
+  provider: openai
+  model: gpt-4o-mini
+  judge_model: gpt-4o-mini   # low-cost model used for LLM-as-judge
+
 embeddings:
   provider: openai
   model: text-embedding-3-small
   dims: 1536
+
+vector_store:
+  provider: chroma
+  retrieval_mode: dense
+
+chromadb:
+  persist_dir: .devmate/chromadb/
+  collection_name: codebase
+
+tasks:
+  db_path: .devmate/tasks.db
 
 semantic_cache:
   enabled: true
@@ -9,32 +25,16 @@ semantic_cache:
   threshold: 0.85
   ttl: 86400
 
-tasks:
-  db_path: .educosys/tasks.db
-
-llm:
-  provider: openai
-  model: gpt-4o-mini
-  judge_model: gpt-4o-mini   # cheaper model used only for LLM-as-judge
-
 skills:
-  skills_dir: .educosys/skills
+  skills_dir: .devmate/skills
 
 memory:
-  db_path: .educosys/memory/memory.db
+  db_path: .devmate/memory/memory.db
   summarize_at_tokens: 4000
   keep_last_messages: 20
 
-chromadb:
-  persist_dir: .educosys/chromadb/
-  collection_name: codebase
-
 rag:
-  mode: semantic           # semantic | hybrid
-
-vector_store:
-  provider: chroma
-  retrieval_mode: dense  # dense | sparse | hybrid
+  mode: semantic
 
 qdrant:
-  collection_name: educosys_claude
+  collection_name: devmate
