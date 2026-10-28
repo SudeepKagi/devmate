@@ -41,8 +41,8 @@ flowchart TD
     
     subgraph CLI_Interface ["CLI & Intent Router"]
         CLI --> Router{"Command Mode"}
-        Router -->|"/ask <query>"| CodebaseAgent["🧠 Codebase Agent (ReAct)"]
-        Router -->|"/plan <goal>"| TaskPlanner["📋 Autonomous Task Planner (DAG)"]
+        Router -->|"/ask [query]"| CodebaseAgent["🧠 Codebase Agent (ReAct)"]
+        Router -->|"/plan [goal]"| TaskPlanner["📋 Autonomous Task Planner (DAG)"]
         Router -->|"/reindex"| Indexer["🔍 AST-Aware Code Indexer"]
     end
 
@@ -97,9 +97,9 @@ sequenceDiagram
     participant Agent as ReAct Agent Orchestrator
     participant Retriever as ChromaDB Vector Store
     participant Tools as Filesystem / Shell Tools
-    participant LLM as OpenAI GPT-4o / mini
+    participant LLM as OpenAI GPT-4o-mini
 
-    User->>CLI: /ask "How does ExpenseStore handle persistence?"
+    User->>CLI: /ask 'How does ExpenseStore handle persistence?'
     CLI->>Cache: Check semantic similarity threshold (>= 0.85)
     alt Cache Hit
         Cache-->>CLI: Return cached response (0 API cost)
@@ -108,12 +108,12 @@ sequenceDiagram
         CLI->>Agent: Initialize ReAct Agent with prompt & tools
         loop ReAct Reasoning & Execution Loop
             Agent->>LLM: Formulate thought & action
-            LLM-->>Agent: Action: search_codebase("ExpenseStore persistence")
+            LLM-->>Agent: Action: search_codebase('ExpenseStore persistence')
             Agent->>Retriever: Dense semantic retrieval (top-k chunks)
             Retriever-->>Agent: Code chunks & file references
             Agent->>LLM: Feed observation, determine next action
             opt Additional Tool Call
-                LLM-->>Agent: Action: read_file("expense_tracker/store.py")
+                LLM-->>Agent: Action: read_file('expense_tracker/store.py')
                 Agent->>Tools: Read source code lines
                 Tools-->>Agent: File content
             end
@@ -136,9 +136,9 @@ flowchart TD
     Planner --> GenerateDAG["Generate Dependency DAG (5-20 Tasks)"]
     GenerateDAG --> Review{"Interactive User Review"}
     
-    Review -->|"[R]eject"| Cancel(["🛑 Plan Cancelled"])
-    Review -->|"[M]odify"| Replan["Refine Goal / Tasks"] --> Planner
-    Review -->|"[A]pprove"| StoreDAG["Save Initial Tasks to SQLite (.devmate/tasks.db)"]
+    Review -->|Reject [R]| Cancel(["🛑 Plan Cancelled"])
+    Review -->|Modify [M]| Replan["Refine Goal / Tasks"] --> Planner
+    Review -->|Approve [A]| StoreDAG["Save Initial Tasks to SQLite (.devmate/tasks.db)"]
     
     StoreDAG --> LoopStart{"Unexecuted Ready Tasks?"}
     LoopStart -->|No| Finished(["🎉 Goal Fully Achieved"])
@@ -149,7 +149,7 @@ flowchart TD
     Execute --> Output["Task Output / Diff Produced"]
     
     Output --> Judge{"⚖️ LLM-as-Judge Quality Check"}
-    Judge -->|"Criteria Not Met"| Retry{"Retry Count < Max?"}
+    Judge -->|"Criteria Not Met"| Retry{"Retry Count below Max?"}
     Retry -->|"Yes"| SubAgent
     Retry -->|"No"| Escalate["⚠️ Flag Task for Human Intervention"]
     
@@ -190,13 +190,13 @@ The RAG suite uses the **no-tracing** shape instead: it builds an `LLMTestCase` 
 ```mermaid
 flowchart LR
     subgraph Test_Runner ["DeepEval Eval Runner"]
-        Runner["`deepeval test run`"]
+        Runner["deepeval test run"]
         Datasets["Evaluation Goldens (.json)"]
     end
 
     subgraph Sandboxed_Environment ["Hermetic Test Fixtures"]
-        TempDir["`tempfile.TemporaryDirectory` (Scratch chdir)"]
-        SampleProj["`fixtures/sample_project` (expense_tracker)"]
+        TempDir["tempfile.TemporaryDirectory (Scratch chdir)"]
+        SampleProj["fixtures/sample_project (expense_tracker)"]
         IsolatedChroma[("Dedicated Session ChromaDB Index")]
         
         TempDir --> SampleProj
