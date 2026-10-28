@@ -1,6 +1,6 @@
 <div align="center">
 
-# Devmate 🤖 (Educosys Claude Code)
+# Devmate (Educosys Claude Code)
 
 ### *Autonomous RAG-Powered Coding Agent CLI built on LangChain, LangGraph & DeepEval*
 
@@ -33,134 +33,94 @@ This repository also contains a comprehensive **DeepEval evaluation suite** (`te
 
 ---
 
-## 🏛️ System Architecture
+## System Overview
 
 ```mermaid
 flowchart TD
-    User(["👤 Developer / Terminal User"]) --> CLI["🖥️ Devmate CLI"]
+    User[Developer] --> CLI[Devmate CLI]
     
-    subgraph CLI_Interface ["CLI & Intent Router"]
-        CLI --> Router{"Command Mode"}
-        Router -->|"/ask [query]"| CodebaseAgent["🧠 Codebase Agent (ReAct)"]
-        Router -->|"/plan [goal]"| TaskPlanner["📋 Autonomous Task Planner (DAG)"]
-        Router -->|"/reindex"| Indexer["🔍 AST-Aware Code Indexer"]
-    end
-
-    subgraph RAG_Engine ["RAG & Semantic Retrieval"]
-        Indexer --> TreeSitter["🌳 Tree-Sitter AST Parser"]
-        TreeSitter --> Chunks["Code Chunks (Classes / Functions)"]
-        Chunks --> Embedder["OpenAI text-embedding-3-small"]
-        Embedder --> Chroma[("💾 ChromaDB / Qdrant")]
-        CodebaseAgent <-->|"search_codebase"| Chroma
-    end
-
-    subgraph Caching_Layer ["Semantic Cache & Memory"]
-        CodebaseAgent <-->|"Cosine Similarity >= 0.85"| RedisCache[("⚡ Redis / RedisVL Cache")]
-    end
-
-    subgraph Tooling_Ecosystem ["Tooling & Integrations"]
-        CodebaseAgent --> ToolRegistry["🛠️ Tool Registry"]
-        ToolRegistry --> FSTools["📁 Filesystem Tools (read, write, edit)"]
-        ToolRegistry --> TermTools["💻 Terminal Tools (run_command)"]
-        ToolRegistry --> MCPTools["🔌 External MCP Servers (GitHub, Bash)"]
-        ToolRegistry --> Skills["📜 Dynamic Skills (.devmate/skills/)"]
-    end
-
-    subgraph Task_Execution ["Autonomous Task DAG Pipeline"]
-        TaskPlanner --> DAG["📊 Dependency-Ordered Task DAG"]
-        DAG --> Approval{"Human-in-the-Loop Review"}
-        Approval -->|"Approve / Modify"| Orchestrator["⚙️ Task Orchestrator"]
-        Approval -->|"Reject"| Abort["❌ Aborted"]
-        Orchestrator --> SubtaskAgent["🤖 Scoped Subtask Executor"]
-        SubtaskAgent --> FSTools
-        SubtaskAgent --> TermTools
-        SubtaskAgent --> Verifier{"⚖️ LLM-as-Judge Verifier"}
-        Verifier -->|"Pass"| SQLiteStore[("🗄️ SQLite Task Store (.devmate/tasks.db)")]
-        Verifier -->|"Fail / Incomplete"| SubtaskAgent
-    end
+    CLI --> AskRoute["/ask (Ask about code)"]
+    CLI --> PlanRoute["/plan (Build features or fix bugs)"]
+    
+    AskRoute --> CodebaseAgent[Codebase Agent]
+    PlanRoute --> TaskPlanner[Task Planner]
+    
+    CodebaseAgent --> VectorIndex[(Codebase Vector Index)]
+    CodebaseAgent --> Tools[Filesystem and Shell Tools]
+    
+    TaskPlanner --> TaskDAG[Task Dependency Plan]
+    TaskDAG --> SubtaskAgent[Worker Agent]
+    SubtaskAgent --> Tools
+    SubtaskAgent --> QualityCheck{LLM Quality Check}
+    QualityCheck -->|Pass| Done[Task Completed]
+    QualityCheck -->|Needs Work| SubtaskAgent
 ```
 
 ---
 
-## 🔄 Core Workflows
+## Core Workflows
 
-### 1. Codebase Agent & RAG Pipeline Workflow (`/ask`)
+### 1. Codebase Agent and RAG Pipeline Workflow (`/ask`)
 
-The `/ask` workflow leverages semantic caching and AST-chunked vector retrieval to deliver grounded context before initiating a tool-driven ReAct loop:
+The `/ask` workflow searches the codebase, checks the cache, and calls tools to answer questions:
 
 ```mermaid
 sequenceDiagram
     autonumber
     actor User as Developer
     participant CLI as Devmate CLI
-    participant Cache as Redis Semantic Cache
-    participant Agent as ReAct Agent Orchestrator
-    participant Retriever as ChromaDB Vector Store
-    participant Tools as Filesystem / Shell Tools
-    participant LLM as OpenAI GPT-4o-mini
+    participant Cache as Semantic Cache
+    participant Agent as Codebase Agent
+    participant Index as Vector Store
+    participant LLM as OpenAI Model
 
-    User->>CLI: /ask 'How does ExpenseStore handle persistence?'
-    CLI->>Cache: Check semantic similarity threshold (>= 0.85)
-    alt Cache Hit
-        Cache-->>CLI: Return cached response (0 API cost)
-        CLI-->>User: Display instant answer
-    else Cache Miss
-        CLI->>Agent: Initialize ReAct Agent with prompt & tools
-        loop ReAct Reasoning & Execution Loop
-            Agent->>LLM: Formulate thought & action
-            LLM-->>Agent: Action: search_codebase('ExpenseStore persistence')
-            Agent->>Retriever: Dense semantic retrieval (top-k chunks)
-            Retriever-->>Agent: Code chunks & file references
-            Agent->>LLM: Feed observation, determine next action
-            opt Additional Tool Call
-                LLM-->>Agent: Action: read_file('expense_tracker/store.py')
-                Agent->>Tools: Read source code lines
-                Tools-->>Agent: File content
-            end
-            Agent->>LLM: Final synthesis
-            LLM-->>Agent: Grounded response with citations
-        end
-        Agent->>Cache: Store query & response in semantic cache
-        Agent-->>CLI: Final Answer
-        CLI-->>User: Render formatted markdown response
+    User->>CLI: Ask question about code
+    CLI->>Cache: Check for previous similar question
+    alt In Cache
+        Cache-->>CLI: Return instant cached answer
+        CLI-->>User: Display answer (0 cost)
+    else Not In Cache
+        CLI->>Agent: Send question
+        Agent->>Index: Search codebase for relevant files
+        Index-->>Agent: Return code snippets
+        Agent->>LLM: Analyze code and formulate answer
+        LLM-->>Agent: Detailed answer with citations
+        Agent->>Cache: Save answer for future queries
+        Agent-->>CLI: Final response
+        CLI-->>User: Display formatted answer
     end
 ```
 
-### 2. Autonomous Task Planner & Executor DAG Workflow (`/plan`)
+### 2. Autonomous Task Planner and Executor DAG Workflow (`/plan`)
 
-The `/plan` workflow breaks complex software objectives into a concrete DAG of subtasks, coordinates human-in-the-loop review, executes subtasks with isolated worker agents, and verifies outputs using an LLM judge:
+The `/plan` workflow breaks goals into subtasks, asks for your review, and executes each task step by step:
 
 ```mermaid
 flowchart TD
-    Start(["🎯 User Goal (/plan)"]) --> Planner["🧠 LLM Task Planner"]
-    Planner --> GenerateDAG["Generate Dependency DAG (5-20 Tasks)"]
-    GenerateDAG --> Review{"Interactive User Review"}
+    Start[User defines a goal] --> Planner[Task Planner analyzes codebase]
+    Planner --> Plan[Creates step-by-step task list]
     
-    Review -->|Reject [R]| Cancel(["🛑 Plan Cancelled"])
-    Review -->|Modify [M]| Replan["Refine Goal / Tasks"] --> Planner
-    Review -->|Approve [A]| StoreDAG["Save Initial Tasks to SQLite (.devmate/tasks.db)"]
+    Plan --> Review{User Review}
+    Review -->|Reject| Cancel[Cancel Plan]
+    Review -->|Modify| Refine[Adjust Plan with User] --> Plan
+    Review -->|Approve| Execute[Start Execution]
     
-    StoreDAG --> LoopStart{"Unexecuted Ready Tasks?"}
-    LoopStart -->|No| Finished(["🎉 Goal Fully Achieved"])
-    LoopStart -->|Yes| NextTask["Select Next Unblocked Task in DAG"]
+    Execute --> NextTask[Pick next unblocked task]
+    NextTask --> Worker[Worker Agent implements task]
+    Worker --> FileChanges[Edit files and run tests]
     
-    NextTask --> SubAgent["🤖 Subtask Agent (Scoped Least-Privilege Tools)"]
-    SubAgent --> Execute["Perform Actions: Edit Files, Run Tests, Execute Shell"]
-    Execute --> Output["Task Output / Diff Produced"]
+    FileChanges --> Judge{Judge verifies acceptance criteria}
+    Judge -->|Incomplete| Worker
+    Judge -->|Passed| SaveTask[Mark task done in database]
     
-    Output --> Judge{"⚖️ LLM-as-Judge Quality Check"}
-    Judge -->|"Criteria Not Met"| Retry{"Retry Count below Max?"}
-    Retry -->|"Yes"| SubAgent
-    Retry -->|"No"| Escalate["⚠️ Flag Task for Human Intervention"]
-    
-    Judge -->|"Criteria Satisfied"| MarkComplete["Update SQLite: Task Marked Completed"]
-    MarkComplete --> Unlock["Unlock Dependent Tasks in DAG"]
-    Unlock --> LoopStart
+    SaveTask --> MoreTasks{More tasks remaining?}
+    MoreTasks -->|Yes| NextTask
+    MoreTasks -->|No| Finished[All tasks completed successfully]
 ```
 
 ---
 
-## 🧪 DeepEval Evaluation Suite (`tests/evals/`)
+## DeepEval Evaluation Suite (`tests/evals/`)
 
 An earlier version of an evaluation suite asked the agent questions about its *own* implementation (e.g. "how does `index_codebase` skip unchanged files?"). That is backwards: nobody runs this tool on itself in practice — they run it against *their* project, which the tool has never seen before, or against an empty directory it needs to build into. Grading answers about the tool's own source does not measure whether the tool performs its actual job.
 
@@ -189,38 +149,21 @@ The RAG suite uses the **no-tracing** shape instead: it builds an `LLMTestCase` 
 
 ```mermaid
 flowchart LR
-    subgraph Test_Runner ["DeepEval Eval Runner"]
-        Runner["deepeval test run"]
-        Datasets["Evaluation Goldens (.json)"]
-    end
-
-    subgraph Sandboxed_Environment ["Hermetic Test Fixtures"]
-        TempDir["tempfile.TemporaryDirectory (Scratch chdir)"]
-        SampleProj["fixtures/sample_project (expense_tracker)"]
-        IsolatedChroma[("Dedicated Session ChromaDB Index")]
-        
-        TempDir --> SampleProj
-        SampleProj --> IsolatedChroma
-    end
-
-    subgraph App_Under_Test ["Devmate App (Traced via @observe)"]
-        RAGSuite["test_rag_pipeline.py"] -->|"retrieve()"| IsolatedChroma
-        CodebaseSuite["test_codebase_agent.py"] -->|"handle_query()"| AgentTraced["ReAct Agent Execution"]
-        TaskSuite["test_task_planning_agent.py"] -->|"create_plan() + run_subtask_agent()"| PlanTraced["Planner & Subtask Execution"]
-    end
-
-    subgraph DeepEval_Metrics ["DeepEval Metrics Evaluation"]
-        RAGSuite --> M_RAG["Contextual Precision, Recall & Relevancy"]
-        CodebaseSuite --> M_Agent["Task Completion, Step Efficiency & GEval Correctness"]
-        TaskSuite --> M_Plan["Plan Quality, Plan Adherence & GEval Task Quality"]
-    end
-
-    Datasets --> Runner
-    Runner --> Sandboxed_Environment
-    Sandboxed_Environment --> App_Under_Test
-    M_RAG --> Report["📊 DeepEval Results & Scoring Report"]
-    M_Agent --> Report
-    M_Plan --> Report
+    TestDataset[Test Datasets] --> TestRunner[DeepEval Test Runner]
+    
+    TestRunner --> Fixture[Target Project: expense_tracker]
+    
+    Fixture --> RAGTest[RAG Suite]
+    Fixture --> AgentTest[Codebase Agent Suite]
+    Fixture --> PlanTest[Task Planning Suite]
+    
+    RAGTest --> RAGMetrics[Retrieval Precision and Recall]
+    AgentTest --> AgentMetrics[Task Completion and Efficiency]
+    PlanTest --> PlanMetrics[Plan Quality and Output Quality]
+    
+    RAGMetrics --> SummaryReport[Evaluation Scores and Report]
+    AgentMetrics --> SummaryReport
+    PlanMetrics --> SummaryReport
 ```
 
 ### Eval Suites Comparison Table
@@ -249,7 +192,7 @@ flowchart LR
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
@@ -316,7 +259,7 @@ semantic_cache:
 
 ---
 
-## 💻 CLI Usage
+## CLI Usage
 
 Launch `devmate` inside any code repository:
 
@@ -343,7 +286,7 @@ devmate
 
 ---
 
-## 🏃 Running the DeepEval Eval Suites
+## Running the DeepEval Eval Suites
 
 DeepEval and Pytest are configured under `[dependency-groups] dev` in [pyproject.toml](pyproject.toml).
 
@@ -402,17 +345,17 @@ Each metric outputs a quantitative score, a pass/fail assessment, and an explana
 ### 7. The Systematic Improvement Loop
 
 ```mermaid
-graph LR
-    A["1. Run Eval Suite"] --> B["2. Inspect Failing Metrics & Reasons"]
-    B --> C["3. Targeted App / Prompt Refinement"]
-    C --> D["4. Re-run with new --identifier"]
-    D --> E["5. Compare Metrics Across Rounds"]
+flowchart LR
+    A[1. Run Eval Suite] --> B[2. Inspect Failing Metrics]
+    B --> C[3. Improve Prompt or Code]
+    C --> D[4. Re-run Evals]
+    D --> E[5. Compare Scores]
     E --> A
 ```
 
 ---
 
-## 🔍 Deep Dive: Why RAG Evals Only Cover Retrieval
+## Deep Dive: Why RAG Evals Only Cover Retrieval
 
 `test_rag_pipeline.py` calls `get_retriever()` directly and never generates an answer. That is a deliberate architectural decision:
 
@@ -423,7 +366,7 @@ graph LR
 
 ---
 
-## 📈 Growing the Evaluation Datasets
+## Growing the Evaluation Datasets
 
 Every golden in this suite is hand-authored against `fixtures/sample_project`:
 
@@ -433,7 +376,7 @@ Every golden in this suite is hand-authored against `fixtures/sample_project`:
 
 ---
 
-## ☁️ Continuous Integration (GitHub Actions)
+## Continuous Integration (GitHub Actions)
 
 The [.github/workflows/deepeval-tests.yml](.github/workflows/deepeval-tests.yml) workflow runs all three evaluation suites on GitHub Actions:
 
@@ -444,7 +387,7 @@ The [.github/workflows/deepeval-tests.yml](.github/workflows/deepeval-tests.yml)
 
 ---
 
-## 🛡️ Confident AI (Optional)
+## Confident AI (Optional)
 
 All evaluations execute locally by default. To publish traces and reports to the Confident AI cloud dashboard:
 
@@ -456,6 +399,6 @@ poetry run deepeval view
 
 ---
 
-## 📄 License
+## License
 
 This project is licensed under the [MIT License](LICENSE).
