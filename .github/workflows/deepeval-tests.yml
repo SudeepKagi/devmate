@@ -1,0 +1,65 @@
+name: DeepEval Agent & RAG Evals
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch: {}
+
+jobs:
+  evals:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Cache Poetry virtualenv
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pypoetry/virtualenvs
+          key: poetry-${{ runner.os }}-${{ hashFiles('poetry.lock') }}
+          restore-keys: |
+            poetry-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: poetry install --with dev
+
+      - name: Run RAG Pipeline Evals
+        if: always()
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          poetry run deepeval test run tests/evals/test_rag_pipeline.py \
+            --identifier "ci-rag-pipeline" \
+            --ignore-errors
+
+      - name: Run Codebase Agent Evals
+        if: always()
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          poetry run deepeval test run tests/evals/test_codebase_agent.py \
+            --identifier "ci-codebase-agent" \
+            --num-processes 3 \
+            --ignore-errors
+
+      - name: Run Task Planning Agent Evals
+        if: always()
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          poetry run deepeval test run tests/evals/test_task_planning_agent.py \
+            --identifier "ci-task-planning" \
+            --num-processes 2 \
+            --ignore-errors
