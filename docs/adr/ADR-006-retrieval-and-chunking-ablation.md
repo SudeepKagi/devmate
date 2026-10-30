@@ -59,3 +59,4 @@ We executed the 4-way ablation across all 50 ground-truth queries under identica
 3. **Trade-off Insights for Technical Interviews**:
    - Hybrid search significantly improves recall on larger lexical units (files, modules) where keyword frequencies are statistically discriminative (+6% recall boost).
    - For fine-grained AST syntax blocks, dense embeddings outperform hybrid fusion ($MRR = 0.4033$ vs $0.2290$) because short function bodies lack sufficient term repetition for BM25 term saturation.
+

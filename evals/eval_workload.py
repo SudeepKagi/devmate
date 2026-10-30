@@ -18,7 +18,7 @@ from devmate.observability.logger import get_logger
 from devmate.observability.metrics_tracker import metrics_tracker
 from devmate.agent.factory import build_agent
 from devmate.agent.orchestrator import handle_query
-from devmate.cache.semantic_cache import SemanticCache
+from devmate.cache.semantic_cache import SemanticCache, build_semantic_cache
 
 logger = get_logger(__name__)
 
@@ -63,13 +63,9 @@ async def run_workload(
         config["prompt_caching"]["enabled"] = True
         config["router"]["enabled"] = True
         config["chromadb"]["persist_dir"] = ".devmate/chromadb_ast/"
-        try:
-            semantic_cache = SemanticCache()
-            cache_domain = "devmate_benchmark"
-        except Exception as e:
-            logger.warning(f"Could not initialize Redis SemanticCache, continuing in-memory: {e}")
-            semantic_cache = None
-            cache_domain = None
+        config["llm"]["model"] = "gpt-4o-mini"
+        semantic_cache = await build_semantic_cache()
+        cache_domain = "devmate_benchmark"
 
     agent = await build_agent(enable_safety=False, include_mcp_tools=False)
     metrics_tracker.reset()

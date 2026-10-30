@@ -39,3 +39,4 @@ def test_bm25_empty_query():
     doc_ids = ["1"]
     bm25 = BM25Index(docs, doc_ids)
     assert bm25.search("") == []
+

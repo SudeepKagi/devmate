@@ -52,3 +52,4 @@ Verified in `tests/test_sandbox.py`:
 
 ## Decision
 Adopt Option 3. Keep `sandbox.enabled` configurable via `config.yaml`.
+

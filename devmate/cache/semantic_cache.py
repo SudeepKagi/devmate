@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import hashlib
+import math
 import time
+from typing import Any, Dict, List, Optional
 
 from redis.asyncio import Redis
 from redisvl.index import AsyncSearchIndex
@@ -16,6 +18,15 @@ from devmate.observability.logger import get_logger
 logger = get_logger(__name__)
 
 VECTOR_DTYPE = "float32"
+
+
+def _cosine_similarity(v1: List[float], v2: List[float]) -> float:
+    dot = sum(a * b for a, b in zip(v1, v2))
+    norm1 = math.sqrt(sum(a * a for a, b in zip(v1, v2)))
+    norm2 = math.sqrt(sum(b * b for a, b in zip(v1, v2)))
+    if norm1 == 0.0 or norm2 == 0.0:
+        return 0.0
+    return dot / (norm1 * norm2)
 
 
 def _build_index_schema(dims: int) -> dict:
@@ -42,24 +53,54 @@ def _build_index_schema(dims: int) -> dict:
 
 
 class SemanticCache:
-    """Async Redis-backed semantic cache for /ask responses."""
+    """Async Redis-backed semantic cache with automatic in-memory fallback."""
 
     def __init__(self, redis_url: str, threshold: float, dims: int):
-        self.client = Redis.from_url(redis_url)
-        self.embedder = get_embedder()
+        self.redis_url = redis_url
         self.threshold = threshold
-        self.index = AsyncSearchIndex.from_dict(
-            _build_index_schema(dims), redis_client=self.client
-        )
+        self.dims = dims
+        self.embedder = get_embedder()
+        self.client: Optional[Redis] = None
+        self.index: Optional[AsyncSearchIndex] = None
+        self._use_in_memory: bool = False
+        self._memory_store: List[Dict[str, Any]] = []
 
     async def setup(self) -> None:
-        await self.index.create(overwrite=False)
+        try:
+            self.client = Redis.from_url(self.redis_url, socket_connect_timeout=1.0)
+            await self.client.ping()
+            self.index = AsyncSearchIndex.from_dict(
+                _build_index_schema(self.dims), redis_client=self.client
+            )
+            await self.index.create(overwrite=False)
+            logger.info("Semantic cache: connected to Redis")
+        except Exception as e:
+            logger.info(f"Semantic cache: Redis unavailable ({e}), using in-memory cosine fallback")
+            self._use_in_memory = True
 
     async def _embed(self, text: str) -> list[float]:
-        return await self.embedder.aembed_query(text)
+        try:
+            return await self.embedder.aembed_query(text)
+        except Exception:
+            return self.embedder.embed_query(text)
 
     async def _top_match(self, query: str, domain: str, model: str) -> dict | None:
         vector = await self._embed(query)
+        if self._use_in_memory or self.index is None:
+            best_match = None
+            best_sim = -1.0
+            for item in self._memory_store:
+                if item.get("domain") == domain and item.get("model") == model:
+                    sim = _cosine_similarity(vector, item["vector"])
+                    if sim > best_sim:
+                        best_sim = sim
+                        best_match = {
+                            "response": item["response"],
+                            "query_text": item["query_text"],
+                            "vector_distance": 1.0 - best_sim,
+                        }
+            return best_match
+
         q = VectorQuery(
             vector=vector,
             vector_field_name="query_vector",
@@ -76,14 +117,25 @@ class SemanticCache:
         hit = await self._top_match(query, domain=domain, model=model)
         if hit is None:
             return None
-        similarity = 1 - float(hit["vector_distance"])
+        similarity = 1.0 - float(hit["vector_distance"])
         if similarity >= self.threshold:
             return hit["response"]
         return None
 
-    async def put(self, query: str, response: str, domain: str, model: str, ttl: int) -> None:
+    async def put(self, query: str, response: str, domain: str, model: str, ttl: int = 86400) -> None:
         """Store a (query, response) pair."""
         vector = await self._embed(query)
+        if self._use_in_memory or self.index is None:
+            self._memory_store.append({
+                "vector": vector,
+                "response": response,
+                "query_text": query,
+                "domain": domain,
+                "model": model,
+                "created_at": time.time(),
+            })
+            return
+
         doc_id = hashlib.sha256(query.encode()).hexdigest()[:16]
         redis_key = self.index.key(doc_id)
         entry = {
@@ -98,6 +150,10 @@ class SemanticCache:
 
     async def invalidate_domain(self, domain: str) -> None:
         """Delete all cache entries for a domain (e.g. after a codebase change)."""
+        if self._use_in_memory or self.client is None:
+            self._memory_store = [i for i in self._memory_store if i.get("domain") != domain]
+            return
+
         async for key in self.client.scan_iter("cache:*"):
             entry = await self.client.hget(key, "domain")
             if entry and entry.decode() == domain:

@@ -10,6 +10,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -28,13 +29,30 @@ BENCH_DIR = Path("evals/datasets/bugfix_bench")
 RESULTS_DIR = Path("evals/results")
 
 
+def extract_code_block(raw: str) -> str:
+    raw = raw.strip()
+    match = re.search(r"```[a-zA-Z0-9_-]*\s*\r?\n(.*?)```", raw, re.DOTALL)
+    if match:
+        return match.group(1).strip() + "\n"
+    lines = raw.splitlines()
+    if lines and lines[0].strip().startswith("```"):
+        lines = lines[1:]
+    if lines and lines[-1].strip().startswith("```"):
+        lines = lines[:-1]
+    return "\n".join(lines).strip() + "\n"
+
+
 def run_command_in_dir(cmd: str, cwd: str, timeout_sec: int = 30) -> tuple[int, str, str]:
     """Execute command in specific directory and return (exit_code, stdout, stderr)."""
     try:
+        env = os.environ.copy()
+        existing_py = env.get("PYTHONPATH", "")
+        env["PYTHONPATH"] = f"{cwd};{existing_py}" if existing_py else str(cwd)
         res = subprocess.run(
             cmd,
             shell=True,
             cwd=cwd,
+            env=env,
             capture_output=True,
             text=True,
             timeout=timeout_sec,
@@ -76,7 +94,7 @@ def evaluate_task(
         shutil.copy(task_dir / "tests" / f"test_failing{test_ext}", tests_dest / f"test_failing{test_ext}")
 
         # 1. Verify that failing test actually fails
-        cmd_runner = sys.executable + " -m pytest" if language == "python" else "node --test"
+        cmd_runner = f'"{sys.executable}" -m pytest -o pythonpath=.' if language == "python" else "node --test"
         code_fail_init, out_fail_init, err_fail_init = run_command_in_dir(
             f"{cmd_runner} tests/test_failing{test_ext}", cwd=temp_workdir
         )
@@ -95,10 +113,46 @@ def evaluate_task(
 
         # Execute agent inside the task context
         with metrics_tracker.task_context(task_id=task_id, run_id=run_id):
-            # In baseline mode, agent uses direct targeted fix or agent loop with optimizations off
-            # For honest evaluation, we invoke the agent to solve the bug
-            # If agent resolves the bug, we record steps
-            pass
+            if agent_mode == "optimized":
+                target_rel = meta.get("target_file", "")
+                src_file = Path(temp_workdir) / "src" / target_rel
+                if not src_file.exists():
+                    candidates = list((Path(temp_workdir) / "src").glob(f"*{test_ext}"))
+                    if candidates:
+                        src_file = candidates[0]
+
+                if src_file.exists():
+                    src_code = src_file.read_text(encoding="utf-8")
+                    from devmate.llm.factory import get_llm
+                    from devmate.observability.metrics_tracker import MetricsCallbackHandler
+                    from langchain_core.messages import SystemMessage, HumanMessage
+                    import re
+
+                    llm = get_llm(model="gpt-4o-mini", temperature=0)
+                    error_context = (err_fail_init or out_fail_init)[-800:]
+                    prompt = (
+                        f"Task: {meta.get('description', '')}\n"
+                        f"Failing test output:\n{error_context}\n\n"
+                        f"Source code ({src_file.name}):\n"
+                        f"```{language}\n{src_code}\n```\n\n"
+                        "Return ONLY the fixed source code inside a single code block."
+                    )
+
+                    try:
+                        resp = llm.invoke(
+                            [
+                                SystemMessage(content="You are an expert bugfix agent. Return only the fixed source code block."),
+                                HumanMessage(content=prompt),
+                            ],
+                            config={"callbacks": [MetricsCallbackHandler()]},
+                        )
+                        steps_used += 1
+                        raw_fix = resp.content
+                        fixed_code = extract_code_block(raw_fix)
+                        src_file.write_text(fixed_code, encoding="utf-8")
+                    except Exception as e:
+                        logger.error(f"Agent failed to fix task {task_id}: {e}")
+                        error_msg = str(e)
 
         duration_sec = time.perf_counter() - start_time
 
@@ -130,6 +184,7 @@ def evaluate_task(
             and steps_used <= max_steps
         )
 
+        q_summary = metrics_tracker.get_summary(task_id=task_id, run_id=run_id)
         task_result = {
             "task_id": task_id,
             "run_id": run_id,
@@ -143,6 +198,10 @@ def evaluate_task(
             "hidden_passed": hidden_passed,
             "duration_sec": round(duration_sec, 2),
             "steps_used": steps_used,
+            "cost_usd": q_summary.total_cost_usd,
+            "total_tokens": q_summary.total_tokens,
+            "input_tokens": q_summary.total_input_tokens,
+            "output_tokens": q_summary.total_output_tokens,
             "error": error_msg,
         }
 

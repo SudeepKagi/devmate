@@ -195,3 +195,4 @@ def retrieve(query: str, k: int = 5, repo_path: Optional[str] = None) -> List[Di
 
     logger.info(f"Hybrid retrieved {len(chunks)} chunks for query: '{query}'")
     return chunks
+
