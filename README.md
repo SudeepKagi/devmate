@@ -406,11 +406,11 @@ Every golden in this suite is hand-authored against `fixtures/sample_project`:
 
 ## Continuous Integration (GitHub Actions)
 
-The [.github/workflows/deepeval-tests.yml](.github/workflows/deepeval-tests.yml) workflow runs all three evaluation suites on GitHub Actions:
+The [.github/workflows/ci.yml](.github/workflows/ci.yml) workflow runs the entire verification pipeline on GitHub Actions:
 
+- **Subsystem Unit Tests**: Automatically executes deterministic unit tests (`pytest tests/ --ignore=tests/evals`) verifying prompt caching, model routing, sandboxing, hybrid retrieval, and metrics tracking on every push and PR.
+- **DeepEval & Agent Evals**: When `OPENAI_API_KEY` is configured in repository secrets, executes RAG retrieval, codebase agent, and task planner evaluations.
 - **Triggers**: Pushes to `main`, pull requests targeting `main`, and manual runs (`workflow_dispatch`).
-- **Secret Configuration**: Add `OPENAI_API_KEY` under *Settings → Secrets and variables → Actions*.
-- **Execution Order**: Suites run sequentially (RAG → Codebase Agent → Task Planning) each with `if: always()`, ensuring complete reporting even if an earlier step fails.
 - **Virtualenv Caching**: Caches Poetry dependencies using `actions/cache` keyed on `poetry.lock`.
 
 ---
