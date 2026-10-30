@@ -1,19 +1,25 @@
 # Secrets - never commit
 .env
+.env.*
+*.key
+*.pem
+credentials.json
 
-# Vector store and runtime data
+# Vector store, local caches, and runtime data
 .chromadb/
 .qdrant/
 .memory/
-.devmate/chromadb/
-.devmate/memory/
-.devmate/*.db
+.devmate/
 *.db
+*.sqlite
+*.sqlite3
+eval_test_*
 
 # Python
 __pycache__/
 *.pyc
 *.pyo
+*.pyd
 
 # Poetry
 poetry.lock
@@ -21,3 +27,4 @@ poetry.lock
 # Virtual environments
 .venv/
 venv/
+env/

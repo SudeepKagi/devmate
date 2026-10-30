@@ -1,0 +1,11 @@
+{
+  "task_id": "task_01",
+  "language": "python",
+  "category": "off_by_one",
+  "description": "paginate_items returns 1 extra item on every page due to an off-by-one end slice.",
+  "test_command": "python -m pytest tests/test_failing.py",
+  "failing_test": "tests/test_failing.py",
+  "existing_test": "tests/test_existing.py",
+  "hidden_test": "tests/test_hidden.py",
+  "target_file": "pagination.py"
+}

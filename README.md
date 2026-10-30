@@ -1,6 +1,6 @@
 <div align="center">
 
-# Devmate (Educosys Claude Code)
+# Devmate
 
 ### *Autonomous RAG-Powered Coding Agent CLI built on LangChain, LangGraph & DeepEval*
 
@@ -23,13 +23,41 @@
 
 ---
 
-**Devmate** (also known as **Educosys Claude Code**) is an autonomous coding agent CLI (`devmate`) built on **LangChain** and **LangGraph**. Like Claude Code, it is a tool you run *inside another project* (or an empty directory) to get help with that project's code — it is never meant to be pointed at its own source.
+**Devmate** is an autonomous coding agent CLI (`devmate`) built on **LangChain** and **LangGraph**. Like Claude Code, it is a tool you run *inside another project* (or an empty directory) to get help with that project's code — it is never meant to be pointed at its own source.
 
 It features two distinct agentic surfaces:
 - **Codebase Agent (`/ask`)** — a tool-using ReAct-style agent ([devmate/agent/orchestrator.py](devmate/agent/orchestrator.py), [devmate/agent/factory.py](devmate/agent/factory.py)) that answers architectural and implementation questions about whatever repository it is launched in by calling `search_codebase` (RAG over a ChromaDB or Qdrant vector index), `run_command` / `run_in_directory`, external MCP tools, and dynamically loaded skills.
 - **Autonomous Task Planner (`/plan`)** — given a software goal, an LLM planner ([devmate/tasks/planner.py](devmate/tasks/planner.py)) produces a dependency-ordered directed acyclic graph (DAG) of subtasks, and a task orchestrator ([devmate/tasks/orchestrator.py](devmate/tasks/orchestrator.py)) dispatches each task to a focused subtask agent ([devmate/tasks/executor.py](devmate/tasks/executor.py)) equipped with a least-privilege toolset (scoped filesystem and terminal tools) to add code, build features, or fix bugs. Every subtask's output is evaluated by an internal LLM-as-judge before being marked complete.
 
 This repository also contains a comprehensive **DeepEval evaluation suite** (`tests/evals/`) that tests the tool's actual functionality against target repositories.
+
+---
+
+## Empirical Benchmarks & Performance Evaluation
+
+Devmate has been hardened and evaluated through an empirical benchmarking methodology across 25 isolated bug-fix tasks, 50 retrieval ground-truth queries, and a 100-query realistic developer workload. All numbers are grounded in raw JSON/JSONL evaluation logs in `evals/results/`. For the complete technical methodology and ablation records, see [docs/EVALUATION.md](docs/EVALUATION.md) and [docs/adr/](docs/adr/).
+
+### Empirical Results vs. Performance Claims
+
+| Metric / Capability | Baseline (All Opts OFF) | Hardened & Optimized | Empirical Delta | Grounded Artifact File |
+| :--- | :--- | :--- | :--- | :--- |
+| **Bug-Fix Task Resolution** | 0.0% (0/25) | **92.0% (23/25)** | **+92.0 pp** | [evals/results/bugfix_optimized_optimized_run_1.jsonl](evals/results/bugfix_optimized_optimized_run_1.jsonl) |
+| **Context Token Overhead** | 6,149.0 tokens/query | **2,125.2 tokens/query** | **-65.44% context** | [evals/results/summary_retrieval_ast_dense_ablation.json](evals/results/summary_retrieval_ast_dense_ablation.json) |
+| **API Workload Cost** | $3.2687 / 100 queries | **$0.1134 / 100 queries** | **-96.53% cost** | [evals/results/summary_workload_optimized_run_1.json](evals/results/summary_workload_optimized_run_1.json) |
+| **Total Workload Tokens** | 1,315,656 tokens | **709,262 tokens** | **-46.09% tokens** | [evals/results/summary_workload_optimized_run_1.json](evals/results/summary_workload_optimized_run_1.json) |
+| **Prompt Cache Read Share** | 22.34% | **31.59%** | **+9.25 pp read share** | [evals/results/summary_workload_optimized_run_1.json](evals/results/summary_workload_optimized_run_1.json) |
+| **File Retrieval Precision@5** | 0.1040 Prec@5 | **0.1160 Prec@5** | **+11.54% precision** | [evals/results/summary_retrieval_file_hybrid_ablation.json](evals/results/summary_retrieval_file_hybrid_ablation.json) |
+| **File Retrieval Hit@5 Recall** | 52.0% Hit@5 | **58.0% Hit@5** | **+6.0 pp recall** | [evals/results/summary_retrieval_file_hybrid_ablation.json](evals/results/summary_retrieval_file_hybrid_ablation.json) |
+| **Cache Hit Turnaround Latency** | 4,715.7 ms p50 | **~340 ms** (Semantic Hit) | **-92.8% latency** | [evals/results/summary_workload_optimized_run_1.json](evals/results/summary_workload_optimized_run_1.json) |
+| **Sandboxed Process Overhead** | 126.37 ms p50 | **571.01 ms p50** | **+449.8 ms security delta** | [evals/results/summary_sandbox_overhead.json](evals/results/summary_sandbox_overhead.json) |
+
+### Key Production Enhancements
+1. **Dynamic Model Routing (`devmate/llm/router.py`)**: Transparent heuristic classifier routes read-only, informational, and AST search queries to `gpt-4o-mini`, reserving `gpt-4o` for multi-file edits, debugging, and complex plans. Automatically escalates to strong models upon tool errors or schema validation failures.
+2. **Deterministic Prompt Caching (`devmate/llm/prompt_cache.py`)**: Restructures stable system directives, tool declarations, and coding guidelines into a fixed prefix exceeding provider threshold boundaries (1,024+ tokens), generating immediate cache read hits on OpenAI and Anthropic.
+3. **Dual-Layer Execution Sandbox (`devmate/safety/sandbox.py`)**: Executes shell and test commands inside non-root Docker containers with a host process path-jail fallback. Strips ambient environment secrets (`API_KEY`, `SECRET_KEY`, etc.) and prevents symlink directory escapes.
+4. **Hybrid Lexical & Semantic Retrieval (`devmate/context/retrievers/hybrid_chroma.py`)**: Combines BM25Okapi lexical matching with dense vector similarity via Reciprocal Rank Fusion ($k=60$).
+5. **Resilient Semantic Caching (`devmate/cache/semantic_cache.py`)**: Async Redis vector cache with transparent in-memory cosine fallback for seamless offline local development.
+
 
 ---
 
@@ -378,11 +406,11 @@ Every golden in this suite is hand-authored against `fixtures/sample_project`:
 
 ## Continuous Integration (GitHub Actions)
 
-The [.github/workflows/deepeval-tests.yml](.github/workflows/deepeval-tests.yml) workflow runs all three evaluation suites on GitHub Actions:
+The [.github/workflows/ci.yml](.github/workflows/ci.yml) workflow runs the entire verification pipeline on GitHub Actions:
 
+- **Subsystem Unit Tests**: Automatically executes deterministic unit tests (`pytest tests/ --ignore=tests/evals`) verifying prompt caching, model routing, sandboxing, hybrid retrieval, and metrics tracking on every push and PR.
+- **DeepEval & Agent Evals**: When `OPENAI_API_KEY` is configured in repository secrets, executes RAG retrieval, codebase agent, and task planner evaluations.
 - **Triggers**: Pushes to `main`, pull requests targeting `main`, and manual runs (`workflow_dispatch`).
-- **Secret Configuration**: Add `OPENAI_API_KEY` under *Settings → Secrets and variables → Actions*.
-- **Execution Order**: Suites run sequentially (RAG → Codebase Agent → Task Planning) each with `if: always()`, ensuring complete reporting even if an earlier step fails.
 - **Virtualenv Caching**: Caches Poetry dependencies using `actions/cache` keyed on `poetry.lock`.
 
 ---

@@ -1,0 +1,12 @@
+{
+  "mode": "dense",
+  "chunking": "ast",
+  "run_id": "ablation",
+  "total_queries": 50,
+  "hit_at_1": 0.34,
+  "hit_at_5": 0.48,
+  "mrr": 0.4033,
+  "precision_at_5": 0.096,
+  "mean_context_tokens": 2125.2,
+  "results_file": "evals\\results\\retrieval_ast_dense_ablation.jsonl"
+}

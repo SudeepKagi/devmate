@@ -7,13 +7,13 @@ from devmate.observability.logger import get_logger
 
 logger = get_logger(__name__)
 
-def retrieve(query: str, k: int = 5) -> list[dict]:
+def retrieve(query: str, k: int = 5, repo_path: str = None) -> list[dict]:
     """
     Embed the query and find the k most similar chunks in Qdrant.
     Returns a list of results with content and metadata.
     """
     embedder = get_embedder()
-    collection_name = get_project_collection_name()
+    collection_name = get_project_collection_name(repo_path, store="qdrant")
 
     vector_store = QdrantVectorStore.from_existing_collection(
         embedding=embedder,

@@ -1,0 +1,17 @@
+{
+  "mode": "baseline",
+  "run_id": "run_1",
+  "total_queries": 100,
+  "cache_hits": 0,
+  "cache_hit_rate_pct": 0.0,
+  "total_input_tokens": 1271070,
+  "total_output_tokens": 44586,
+  "total_cached_input_tokens": 283904,
+  "prompt_cache_read_share_pct": 22.34,
+  "total_tokens": 1315656,
+  "total_cost_usd": 3.268655,
+  "mean_latency_ms": 4883.13,
+  "p50_latency_ms": 4715.73,
+  "p95_latency_ms": 8910.93,
+  "results_file": "evals\\results\\workload_baseline_run_1.jsonl"
+}

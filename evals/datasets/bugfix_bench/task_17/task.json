@@ -1,0 +1,11 @@
+{
+  "task_id": "task_17",
+  "language": "python",
+  "category": "list_mutation_during_iter",
+  "description": "remove_evens skips adjacent even numbers due to mutating list during iteration.",
+  "test_command": "python -m pytest tests/test_failing.py",
+  "failing_test": "tests/test_failing.py",
+  "existing_test": "tests/test_existing.py",
+  "hidden_test": "tests/test_hidden.py",
+  "target_file": "filter.py"
+}

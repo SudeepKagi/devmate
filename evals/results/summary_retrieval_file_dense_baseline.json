@@ -1,0 +1,12 @@
+{
+  "mode": "dense",
+  "chunking": "file",
+  "run_id": "baseline",
+  "total_queries": 50,
+  "hit_at_1": 0.44,
+  "hit_at_5": 0.52,
+  "mrr": 0.474,
+  "precision_at_5": 0.104,
+  "mean_context_tokens": 6149.0,
+  "results_file": "evals\\results\\retrieval_file_dense_baseline.jsonl"
+}

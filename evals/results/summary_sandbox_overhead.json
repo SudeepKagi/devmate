@@ -1,0 +1,16 @@
+{
+  "command_count": 50,
+  "unsandboxed": {
+    "mean_ms": 139.22,
+    "p50_ms": 126.37,
+    "p95_ms": 267.33
+  },
+  "sandboxed": {
+    "mean_ms": 589.05,
+    "p50_ms": 571.01,
+    "p95_ms": 740.32
+  },
+  "overhead_delta_mean_ms": 449.82,
+  "overhead_delta_pct": 323.09,
+  "results_file": "evals\\results\\sandbox_overhead.jsonl"
+}

@@ -1,0 +1,11 @@
+{
+  "task_id": "task_07",
+  "language": "python",
+  "category": "bad_async_handling",
+  "description": "fetch_with_cache returns coroutine object instead of resolved value.",
+  "test_command": "python -m pytest tests/test_failing.py",
+  "failing_test": "tests/test_failing.py",
+  "existing_test": "tests/test_existing.py",
+  "hidden_test": "tests/test_hidden.py",
+  "target_file": "async_cache.py"
+}

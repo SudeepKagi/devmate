@@ -1,0 +1,11 @@
+{
+  "task_id": "task_24",
+  "language": "javascript",
+  "category": "js_scope_closure",
+  "description": "createCallbacks creates closures all returning final loop value.",
+  "test_command": "node --test tests/test_failing.js",
+  "failing_test": "tests/test_failing.js",
+  "existing_test": "tests/test_existing.js",
+  "hidden_test": "tests/test_hidden.js",
+  "target_file": "callbacks.js"
+}

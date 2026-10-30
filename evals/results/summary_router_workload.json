@@ -1,0 +1,16 @@
+{
+  "total_queries": 100,
+  "fast_model": "gpt-4o-mini",
+  "strong_model": "gpt-4o",
+  "fast_model_routed_count": 100,
+  "fast_model_routed_pct": 100.0,
+  "strong_model_routed_count": 0,
+  "strong_model_routed_pct": 0.0,
+  "reasons_breakdown": {
+    "standard_lookup_default_light": 100
+  },
+  "modeled_always_strong_cost_usd": 2.6375,
+  "modeled_routed_cost_usd": 0.1583,
+  "modeled_cost_reduction_pct": 94.0,
+  "results_file": "evals\\results\\router_decisions_workload.jsonl"
+}

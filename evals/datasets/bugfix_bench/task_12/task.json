@@ -1,0 +1,11 @@
+{
+  "task_id": "task_12",
+  "language": "python",
+  "category": "cache_invalidation",
+  "description": "LRUCache does not mark hit item as recently used.",
+  "test_command": "python -m pytest tests/test_failing.py",
+  "failing_test": "tests/test_failing.py",
+  "existing_test": "tests/test_existing.py",
+  "hidden_test": "tests/test_hidden.py",
+  "target_file": "lru.py"
+}

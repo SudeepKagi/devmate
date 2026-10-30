@@ -1,20 +1,21 @@
-name: DeepEval Agent & RAG Evals
+name: Devmate CI/CD Pipeline
 
 on:
   push:
-    branches: [main]
+    branches: [main, "feat/*"]
   pull_request:
     branches: [main]
   workflow_dispatch: {}
 
 jobs:
-  evals:
+  unit-tests:
+    name: Subsystem Unit Tests
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Set up Python
+      - name: Set up Python 3.12
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -32,11 +33,49 @@ jobs:
           restore-keys: |
             poetry-${{ runner.os }}-
 
-      - name: Install dependencies
+      - name: Install Dependencies
+        run: poetry install --with dev
+
+      - name: Run Unit Tests
+        run: |
+          poetry run pytest tests/ --ignore=tests/evals -v
+
+  evaluations:
+    name: DeepEval & Agent Evals
+    needs: unit-tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Cache Poetry virtualenv
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pypoetry/virtualenvs
+          key: poetry-${{ runner.os }}-${{ hashFiles('poetry.lock') }}
+          restore-keys: |
+            poetry-${{ runner.os }}-
+
+      - name: Install Dependencies
         run: poetry install --with dev
 
       - name: Run RAG Pipeline Evals
-        if: always()
+        if: env.OPENAI_API_KEY != ''
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
@@ -45,7 +84,7 @@ jobs:
             --ignore-errors
 
       - name: Run Codebase Agent Evals
-        if: always()
+        if: env.OPENAI_API_KEY != ''
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
@@ -55,7 +94,7 @@ jobs:
             --ignore-errors
 
       - name: Run Task Planning Agent Evals
-        if: always()
+        if: env.OPENAI_API_KEY != ''
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
@@ -63,3 +102,4 @@ jobs:
             --identifier "ci-task-planning" \
             --num-processes 2 \
             --ignore-errors
+

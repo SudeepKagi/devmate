@@ -6,13 +6,13 @@ from devmate.observability.logger import get_logger
 
 logger = get_logger(__name__)
 
-def retrieve(query: str, k: int = 5) -> list[dict]:
+def retrieve(query: str, k: int = 5, repo_path: str = None) -> list[dict]:
     """
     Embed the query and find the k most similar chunks in ChromaDB.
     Returns a list of results with content and metadata.
     """
-    persist_dir = get_chroma_persist_dir()
-    collection_name = get_project_collection_name()
+    persist_dir = get_chroma_persist_dir(repo_path)
+    collection_name = get_project_collection_name(repo_path, store="chromadb")
     chroma_client = chromadb.PersistentClient(path=persist_dir)
     collection = chroma_client.get_or_create_collection(name=collection_name)
 

@@ -52,41 +52,50 @@ def _embed_file(collection: chromadb.Collection, filepath: str, mtime: float) ->
         logger.error(f"Skipping {filepath}: {e}")
         return 0
 
-    indexed_count = 0
-    for chunk in chunks:
-        doc_id = f"{chunk.source}::{chunk.name}::{chunk.start_line}"
-        embedding = None
-        for attempt in range(5):
+    if not chunks:
+        return 0
+
+    texts = [chunk.content for chunk in chunks]
+    doc_ids = [f"{chunk.source}::{chunk.name}::{chunk.start_line}" for chunk in chunks]
+    metadatas = [
+        {
+            "source": chunk.source,
+            "name": chunk.name,
+            "type": chunk.type,
+            "start_line": chunk.start_line,
+            "end_line": chunk.end_line,
+            "mtime": mtime,
+        }
+        for chunk in chunks
+    ]
+
+    embeddings = []
+    try:
+        embeddings = embedder.embed_documents(texts)
+    except Exception as e:
+        logger.warning(f"Batch embed failed for {filepath} ({e}), falling back to single-item...")
+        for t in texts:
             try:
-                embedding = embedder.embed_query(chunk.content)
-                break
-            except Exception as e:
-                if "429" in str(e) or "RESOURCE_EXHAUSTED" in str(e):
-                    logger.warning(f"Rate limited by API. Backing off 2s (attempt {attempt+1}/5)...")
-                    time.sleep(2)
-                else:
-                    logger.error(f"Failed to embed chunk '{chunk.name}': {e}")
-                    break
+                embeddings.append(embedder.embed_query(t))
+            except Exception:
+                embeddings.append(None)
 
-        if embedding is None:
-            continue
+    valid_ids, valid_emb, valid_docs, valid_meta = [], [], [], []
+    for did, emb, txt, meta in zip(doc_ids, embeddings, texts, metadatas):
+        if emb is not None:
+            valid_ids.append(did)
+            valid_emb.append(emb)
+            valid_docs.append(txt)
+            valid_meta.append(meta)
 
+    if valid_ids:
         collection.upsert(
-            ids=[doc_id],
-            embeddings=[embedding],
-            documents=[chunk.content],
-            metadatas=[{
-                "source": chunk.source,
-                "name": chunk.name,
-                "type": chunk.type,
-                "start_line": chunk.start_line,
-                "end_line": chunk.end_line,
-                "mtime": mtime,
-            }]
+            ids=valid_ids,
+            embeddings=valid_emb,
+            documents=valid_docs,
+            metadatas=valid_meta,
         )
-        indexed_count += 1
-
-    return indexed_count
+    return len(valid_ids)
 
 
 def index_single_file(filepath: str, repo_path: str = None) -> None:

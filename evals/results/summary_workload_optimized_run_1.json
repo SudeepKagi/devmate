@@ -1,0 +1,17 @@
+{
+  "mode": "optimized",
+  "run_id": "run_1",
+  "total_queries": 100,
+  "cache_hits": 0,
+  "cache_hit_rate_pct": 0.0,
+  "total_input_tokens": 658896,
+  "total_output_tokens": 50366,
+  "total_cached_input_tokens": 208128,
+  "prompt_cache_read_share_pct": 31.59,
+  "total_tokens": 709262,
+  "total_cost_usd": 0.113446,
+  "mean_latency_ms": 4441.25,
+  "p50_latency_ms": 4593.88,
+  "p95_latency_ms": 9261.59,
+  "results_file": "evals\\results\\workload_optimized_run_1.jsonl"
+}

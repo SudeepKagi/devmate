@@ -1,0 +1,11 @@
+{
+  "task_id": "task_02",
+  "language": "python",
+  "category": "mutable_default",
+  "description": "RoleManager.add_role mutates default roles list across instances.",
+  "test_command": "python -m pytest tests/test_failing.py",
+  "failing_test": "tests/test_failing.py",
+  "existing_test": "tests/test_existing.py",
+  "hidden_test": "tests/test_hidden.py",
+  "target_file": "roles.py"
+}

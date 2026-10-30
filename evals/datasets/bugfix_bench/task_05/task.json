@@ -1,0 +1,11 @@
+{
+  "task_id": "task_05",
+  "language": "python",
+  "category": "dict_key_error",
+  "description": "parse_headers raises KeyError when Authorization header is absent.",
+  "test_command": "python -m pytest tests/test_failing.py",
+  "failing_test": "tests/test_failing.py",
+  "existing_test": "tests/test_existing.py",
+  "hidden_test": "tests/test_hidden.py",
+  "target_file": "headers.py"
+}

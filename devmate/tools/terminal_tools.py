@@ -2,6 +2,8 @@ import subprocess
 from pathlib import Path
 from langchain_core.tools import tool
 
+from devmate.safety.sandbox import is_sandbox_enabled, execute_sandboxed_command
+
 _BLOCKED_COMMANDS = [
     "rm -rf /",
     "rm -rf ~",
@@ -24,6 +26,15 @@ def run_command(command: str) -> str:
     Returns stdout and stderr from the command. Destructive system-level commands are blocked."""
     if not _is_safe(command):
         return f"Error: Command blocked for security reasons: {command}"
+
+    if is_sandbox_enabled():
+        code, stdout, stderr, meta = execute_sandboxed_command(command)
+        output = stdout
+        if stderr:
+            output += f"\nSTDERR:\n{stderr}"
+        if code != 0:
+            output += f"\n(Command exited with code {code})"
+        return output.strip() or "(Command completed with no output)"
 
     try:
         result = subprocess.run(
@@ -55,6 +66,15 @@ def run_in_directory(command: str, directory: str) -> str:
 
     if not _is_safe(command):
         return f"Error: Command blocked for security reasons: {command}"
+
+    if is_sandbox_enabled():
+        code, stdout, stderr, meta = execute_sandboxed_command(command)
+        output = stdout
+        if stderr:
+            output += f"\nSTDERR:\n{stderr}"
+        if code != 0:
+            output += f"\n(Command exited with code {code})"
+        return output.strip() or "(Command completed with no output)"
 
     try:
         result = subprocess.run(

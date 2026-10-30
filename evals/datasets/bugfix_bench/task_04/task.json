@@ -1,0 +1,11 @@
+{
+  "task_id": "task_04",
+  "language": "python",
+  "category": "missing_null_check",
+  "description": "get_user_setting crashes with AttributeError when user profile is None.",
+  "test_command": "python -m pytest tests/test_failing.py",
+  "failing_test": "tests/test_failing.py",
+  "existing_test": "tests/test_existing.py",
+  "hidden_test": "tests/test_hidden.py",
+  "target_file": "settings.py"
+}

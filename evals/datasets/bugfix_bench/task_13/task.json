@@ -1,0 +1,11 @@
+{
+  "task_id": "task_13",
+  "language": "python",
+  "category": "float_precision",
+  "description": "calculate_tax produces unrounded floating point representation.",
+  "test_command": "python -m pytest tests/test_failing.py",
+  "failing_test": "tests/test_failing.py",
+  "existing_test": "tests/test_existing.py",
+  "hidden_test": "tests/test_hidden.py",
+  "target_file": "tax.py"
+}
