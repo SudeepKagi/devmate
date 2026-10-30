@@ -11,6 +11,7 @@ from devmate.agent.tools import reset_search_history
 from devmate.safety.guardrails import PIIDetectionError
 from devmate.safety.hitl import handle_interrupts
 from devmate.observability.logger import get_logger
+from devmate.observability.metrics_tracker import metrics_tracker, MetricsCallbackHandler
 
 logger = get_logger(__name__)
 
@@ -35,12 +36,16 @@ async def handle_query(
             cached_response = None
         if cached_response is not None:
             logger.info("Semantic cache HIT - skipping agent/tool calls")
+            metrics_tracker.record_cache_event(task_id=thread_id, hit=True, domain=cache_domain, key=question)
             return cached_response
+        else:
+            metrics_tracker.record_cache_event(task_id=thread_id, hit=False, domain=cache_domain, key=question)
 
     reset_search_history()
     agent_config = {
         "configurable": {"thread_id": thread_id},
         "recursion_limit": 100,
+        "callbacks": [MetricsCallbackHandler()],
     }
     try:
         response = await agent.ainvoke(

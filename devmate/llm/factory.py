@@ -1,14 +1,21 @@
 import os
 from devmate.config import config
 from devmate.observability.logger import get_logger
+from devmate.observability.metrics_tracker import MetricsCallbackHandler
 
 logger = get_logger(__name__)
 
-def get_llm():
-    """Return the right LangChain LLM based on config."""
+def get_llm(
+    model: str | None = None,
+    temperature: float | None = None,
+    callbacks: list | None = None,
+):
+    """Return the right LangChain LLM based on config with automated metrics tracking."""
     provider = config["llm"]["provider"].lower()
-    model = config["llm"]["model"]
-    logger.info(f"Using LLM provider: {provider}, model: {model}")
+    selected_model = model or config["llm"]["model"]
+    temp = temperature if temperature is not None else 0.2
+    active_callbacks = list(callbacks) if callbacks is not None else [MetricsCallbackHandler()]
+    logger.info(f"Using LLM provider: {provider}, model: {selected_model}")
 
     if provider == "openai":
         from langchain_openai import ChatOpenAI
@@ -19,20 +26,22 @@ def get_llm():
             )
         max_tokens = config["llm"].get("max_tokens", 1000)
         return ChatOpenAI(
-            model=model,
+            model=selected_model,
             api_key=api_key,
             max_tokens=max_tokens,
-            temperature=0.2,
+            temperature=temp,
+            callbacks=active_callbacks,
         )
 
     if provider == "gemini":
         from langchain_google_genai import ChatGoogleGenerativeAI
         api_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
         return ChatGoogleGenerativeAI(
-            model=model,
+            model=selected_model,
             google_api_key=api_key,
             max_retries=1,
-            temperature=0.2,
+            temperature=temp,
+            callbacks=active_callbacks,
         )
 
     if provider == "groq":
@@ -42,11 +51,20 @@ def get_llm():
             raise ValueError(
                 "GROQ_API_KEY not found. Please add GROQ_API_KEY=your_key in .env file."
             )
-        return ChatGroq(model=model, api_key=api_key, temperature=0.2)
+        return ChatGroq(
+            model=selected_model,
+            api_key=api_key,
+            temperature=temp,
+            callbacks=active_callbacks,
+        )
 
     if provider == "anthropic":
         from langchain_anthropic import ChatAnthropic
-        return ChatAnthropic(model=model)
+        return ChatAnthropic(
+            model=selected_model,
+            temperature=temp,
+            callbacks=active_callbacks,
+        )
 
     if provider == "grok":
         api_key = os.getenv("XAI_API_KEY") or os.getenv("GROK_API_KEY") or os.getenv("GROQ_API_KEY")
@@ -57,10 +75,20 @@ def get_llm():
         if api_key.startswith("gsk_"):
             logger.info("Detected Groq API key (gsk_...). Using Groq provider.")
             from langchain_groq import ChatGroq
-            return ChatGroq(model=model, api_key=api_key, temperature=0.2)
+            return ChatGroq(
+                model=selected_model,
+                api_key=api_key,
+                temperature=temp,
+                callbacks=active_callbacks,
+            )
 
         from langchain_xai import ChatXAI
-        return ChatXAI(model=model, api_key=api_key, temperature=0.2)
+        return ChatXAI(
+            model=selected_model,
+            api_key=api_key,
+            temperature=temp,
+            callbacks=active_callbacks,
+        )
 
     raise ValueError(f"Unsupported LLM provider: '{provider}'. Supported providers are: 'groq', 'anthropic', 'openai', 'gemini', 'grok'")
 

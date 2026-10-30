@@ -17,6 +17,7 @@ except ImportError:
 from devmate.config import config
 from devmate.tasks.task_store import TaskType
 from devmate.observability.logger import get_logger
+from devmate.observability.metrics_tracker import MetricsCallbackHandler
 
 logger = get_logger(__name__)
 
@@ -76,7 +77,10 @@ def create_plan(goal: str, extra_context: str = "") -> ExecutionPlan:
     if extra_context:
         user_message += f"\n\nAdditional context / change requests:\n{extra_context}"
 
-    result = planner_agent.invoke({"messages": [{"role": "user", "content": user_message}]})
+    result = planner_agent.invoke(
+        {"messages": [{"role": "user", "content": user_message}]},
+        config={"callbacks": [MetricsCallbackHandler()]},
+    )
     plan: ExecutionPlan = result["structured_response"]
     logger.info(f"Plan created: {plan.project_name} with {len(plan.tasks)} tasks")
 

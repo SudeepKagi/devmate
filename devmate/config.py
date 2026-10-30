@@ -65,6 +65,47 @@ DEFAULT_CONFIG = {
     "rag": {
         "mode": "semantic",
     },
+    "pricing": {
+        "source_url": "https://openai.com/api/pricing/ and https://ai.google.dev/pricing and https://www.anthropic.com/pricing",
+        "effective_date": "2024-10-01",
+        "models": {
+            "gpt-4o-mini": {
+                "input_per_million": 0.15,
+                "cached_input_per_million": 0.075,
+                "output_per_million": 0.60,
+            },
+            "gpt-4o": {
+                "input_per_million": 2.50,
+                "cached_input_per_million": 1.25,
+                "output_per_million": 10.00,
+            },
+            "claude-3-5-sonnet": {
+                "input_per_million": 3.00,
+                "cached_input_per_million": 0.30,
+                "output_per_million": 15.00,
+            },
+            "claude-3-5-haiku": {
+                "input_per_million": 0.80,
+                "cached_input_per_million": 0.08,
+                "output_per_million": 4.00,
+            },
+            "gemini-1.5-flash": {
+                "input_per_million": 0.075,
+                "cached_input_per_million": 0.01875,
+                "output_per_million": 0.30,
+            },
+            "gemini-1.5-pro": {
+                "input_per_million": 1.25,
+                "cached_input_per_million": 0.3125,
+                "output_per_million": 5.00,
+            },
+            "text-embedding-3-small": {
+                "input_per_million": 0.02,
+                "cached_input_per_million": 0.02,
+                "output_per_million": 0.0,
+            },
+        },
+    },
 }
 
 def load_config() -> dict:
