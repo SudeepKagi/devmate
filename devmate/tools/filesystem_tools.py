@@ -2,11 +2,25 @@ import os
 from pathlib import Path
 from langchain_core.tools import tool
 
+from devmate.safety.sandbox import is_sandbox_enabled, validate_workspace_path, SecurityError
+
+
+def _safe_path(path: str) -> tuple[Path, str | None]:
+    """Helper to check path against sandbox jail if enabled."""
+    if is_sandbox_enabled():
+        try:
+            return validate_workspace_path(path), None
+        except SecurityError as e:
+            return Path(path), f"SecurityError: {e}"
+    return Path(path), None
+
 
 @tool
 def read_file(path: str) -> str:
     """Read and return the text contents of a file at the given path."""
-    p = Path(path)
+    p, err = _safe_path(path)
+    if err:
+        return err
     if not p.exists():
         return f"Error: File '{path}' does not exist."
     if not p.is_file():
@@ -25,7 +39,9 @@ def read_file(path: str) -> str:
 @tool
 def write_file(path: str, content: str) -> str:
     """Write content to a file at the given path, creating parent directories if needed."""
-    p = Path(path)
+    p, err = _safe_path(path)
+    if err:
+        return err
     try:
         p.parent.mkdir(parents=True, exist_ok=True)
         p.write_text(content, encoding="utf-8")
@@ -37,7 +53,9 @@ def write_file(path: str, content: str) -> str:
 @tool
 def append_file(path: str, content: str) -> str:
     """Append content to a file at the given path."""
-    p = Path(path)
+    p, err = _safe_path(path)
+    if err:
+        return err
     try:
         p.parent.mkdir(parents=True, exist_ok=True)
         with p.open("a", encoding="utf-8") as f:
@@ -50,7 +68,9 @@ def append_file(path: str, content: str) -> str:
 @tool
 def delete_file(path: str) -> str:
     """Delete a file at the given path safely (will not delete directories)."""
-    p = Path(path)
+    p, err = _safe_path(path)
+    if err:
+        return err
     if not p.exists():
         return f"Error: File '{path}' does not exist."
     if not p.is_file():
@@ -65,7 +85,9 @@ def delete_file(path: str) -> str:
 @tool
 def list_directory(path: str = ".") -> str:
     """List contents of a directory, showing files, directories, and file sizes."""
-    p = Path(path)
+    p, err = _safe_path(path)
+    if err:
+        return err
     if not p.exists():
         return f"Error: Directory '{path}' does not exist."
     if not p.is_dir():
@@ -87,13 +109,18 @@ def list_directory(path: str = ".") -> str:
 @tool
 def file_exists(path: str) -> bool:
     """Check if a file or directory exists at the given path."""
-    return Path(path).exists()
+    p, err = _safe_path(path)
+    if err:
+        return False
+    return p.exists()
 
 
 @tool
 def update_file(path: str, old_text: str, new_text: str, replace_all: bool = False) -> str:
     """Update text in a file by replacing old_text with new_text."""
-    p = Path(path)
+    p, err = _safe_path(path)
+    if err:
+        return err
     if not p.exists():
         return f"Error: File '{path}' does not exist."
     if not p.is_file():
@@ -118,4 +145,5 @@ def update_file(path: str, old_text: str, new_text: str, replace_all: bool = Fal
         return f"Updated file '{path}' (replacements: {count})"
     except Exception as e:
         return f"Error writing updated file '{path}': {str(e)}"
+
 

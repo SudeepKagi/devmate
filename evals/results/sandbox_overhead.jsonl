@@ -1,0 +1,50 @@
+{"command_index": 0, "command": "python -c \"print(42)\"", "unsandboxed_ms": 583.71, "sandboxed_ms": 673.13, "delta_ms": 89.42}
+{"command_index": 1, "command": "python -c \"import sys; print(sys.version_info[0])\"", "unsandboxed_ms": 73.13, "sandboxed_ms": 710.45, "delta_ms": 637.31}
+{"command_index": 2, "command": "python -c \"import os; print(os.name)\"", "unsandboxed_ms": 163.69, "sandboxed_ms": 628.07, "delta_ms": 464.38}
+{"command_index": 3, "command": "python -c \"import math; print(math.sqrt(144))\"", "unsandboxed_ms": 160.44, "sandboxed_ms": 515.35, "delta_ms": 354.91}
+{"command_index": 4, "command": "python -c \"import json; print(json.dumps({'status': 'ok'}))\"", "unsandboxed_ms": 126.37, "sandboxed_ms": 595.99, "delta_ms": 469.62}
+{"command_index": 5, "command": "python -c \"print(sum(range(100)))\"", "unsandboxed_ms": 158.69, "sandboxed_ms": 670.02, "delta_ms": 511.32}
+{"command_index": 6, "command": "python -c \"import uuid; print(len(str(uuid.uuid4())))\"", "unsandboxed_ms": 267.33, "sandboxed_ms": 521.62, "delta_ms": 254.29}
+{"command_index": 7, "command": "python -c \"print('devmate_test'.upper())\"", "unsandboxed_ms": 155.65, "sandboxed_ms": 681.34, "delta_ms": 525.69}
+{"command_index": 8, "command": "python -c \"import hashlib; print(hashlib.md5(b'test').hexdigest())\"", "unsandboxed_ms": 158.14, "sandboxed_ms": 526.16, "delta_ms": 368.01}
+{"command_index": 9, "command": "python -c \"print(list(reversed([1, 2, 3])))\"", "unsandboxed_ms": 83.51, "sandboxed_ms": 580.28, "delta_ms": 496.77}
+{"command_index": 10, "command": "python -c \"print(42)\"", "unsandboxed_ms": 178.28, "sandboxed_ms": 607.84, "delta_ms": 429.56}
+{"command_index": 11, "command": "python -c \"import sys; print(sys.version_info[0])\"", "unsandboxed_ms": 185.68, "sandboxed_ms": 539.46, "delta_ms": 353.78}
+{"command_index": 12, "command": "python -c \"import os; print(os.name)\"", "unsandboxed_ms": 83.3, "sandboxed_ms": 703.63, "delta_ms": 620.34}
+{"command_index": 13, "command": "python -c \"import math; print(math.sqrt(144))\"", "unsandboxed_ms": 105.97, "sandboxed_ms": 481.54, "delta_ms": 375.58}
+{"command_index": 14, "command": "python -c \"import json; print(json.dumps({'status': 'ok'}))\"", "unsandboxed_ms": 197.86, "sandboxed_ms": 571.01, "delta_ms": 373.16}
+{"command_index": 15, "command": "python -c \"print(sum(range(100)))\"", "unsandboxed_ms": 83.37, "sandboxed_ms": 496.95, "delta_ms": 413.58}
+{"command_index": 16, "command": "python -c \"import uuid; print(len(str(uuid.uuid4())))\"", "unsandboxed_ms": 79.99, "sandboxed_ms": 531.83, "delta_ms": 451.84}
+{"command_index": 17, "command": "python -c \"print('devmate_test'.upper())\"", "unsandboxed_ms": 68.69, "sandboxed_ms": 601.99, "delta_ms": 533.3}
+{"command_index": 18, "command": "python -c \"import hashlib; print(hashlib.md5(b'test').hexdigest())\"", "unsandboxed_ms": 86.1, "sandboxed_ms": 547.5, "delta_ms": 461.41}
+{"command_index": 19, "command": "python -c \"print(list(reversed([1, 2, 3])))\"", "unsandboxed_ms": 94.43, "sandboxed_ms": 516.92, "delta_ms": 422.49}
+{"command_index": 20, "command": "python -c \"print(42)\"", "unsandboxed_ms": 149.99, "sandboxed_ms": 518.85, "delta_ms": 368.86}
+{"command_index": 21, "command": "python -c \"import sys; print(sys.version_info[0])\"", "unsandboxed_ms": 140.83, "sandboxed_ms": 518.91, "delta_ms": 378.08}
+{"command_index": 22, "command": "python -c \"import os; print(os.name)\"", "unsandboxed_ms": 148.19, "sandboxed_ms": 568.79, "delta_ms": 420.6}
+{"command_index": 23, "command": "python -c \"import math; print(math.sqrt(144))\"", "unsandboxed_ms": 65.47, "sandboxed_ms": 564.6, "delta_ms": 499.13}
+{"command_index": 24, "command": "python -c \"import json; print(json.dumps({'status': 'ok'}))\"", "unsandboxed_ms": 77.82, "sandboxed_ms": 629.39, "delta_ms": 551.57}
+{"command_index": 25, "command": "python -c \"print(sum(range(100)))\"", "unsandboxed_ms": 136.88, "sandboxed_ms": 537.11, "delta_ms": 400.23}
+{"command_index": 26, "command": "python -c \"import uuid; print(len(str(uuid.uuid4())))\"", "unsandboxed_ms": 118.36, "sandboxed_ms": 521.69, "delta_ms": 403.33}
+{"command_index": 27, "command": "python -c \"print('devmate_test'.upper())\"", "unsandboxed_ms": 68.94, "sandboxed_ms": 518.34, "delta_ms": 449.4}
+{"command_index": 28, "command": "python -c \"import hashlib; print(hashlib.md5(b'test').hexdigest())\"", "unsandboxed_ms": 76.52, "sandboxed_ms": 556.86, "delta_ms": 480.34}
+{"command_index": 29, "command": "python -c \"print(list(reversed([1, 2, 3])))\"", "unsandboxed_ms": 90.33, "sandboxed_ms": 518.47, "delta_ms": 428.13}
+{"command_index": 30, "command": "python -c \"print(42)\"", "unsandboxed_ms": 194.67, "sandboxed_ms": 562.68, "delta_ms": 368.0}
+{"command_index": 31, "command": "python -c \"import sys; print(sys.version_info[0])\"", "unsandboxed_ms": 138.45, "sandboxed_ms": 783.98, "delta_ms": 645.53}
+{"command_index": 32, "command": "python -c \"import os; print(os.name)\"", "unsandboxed_ms": 106.03, "sandboxed_ms": 633.13, "delta_ms": 527.09}
+{"command_index": 33, "command": "python -c \"import math; print(math.sqrt(144))\"", "unsandboxed_ms": 234.88, "sandboxed_ms": 725.49, "delta_ms": 490.61}
+{"command_index": 34, "command": "python -c \"import json; print(json.dumps({'status': 'ok'}))\"", "unsandboxed_ms": 310.53, "sandboxed_ms": 601.48, "delta_ms": 290.95}
+{"command_index": 35, "command": "python -c \"print(sum(range(100)))\"", "unsandboxed_ms": 127.98, "sandboxed_ms": 567.91, "delta_ms": 439.93}
+{"command_index": 36, "command": "python -c \"import uuid; print(len(str(uuid.uuid4())))\"", "unsandboxed_ms": 195.45, "sandboxed_ms": 572.64, "delta_ms": 377.19}
+{"command_index": 37, "command": "python -c \"print('devmate_test'.upper())\"", "unsandboxed_ms": 170.7, "sandboxed_ms": 499.64, "delta_ms": 328.94}
+{"command_index": 38, "command": "python -c \"import hashlib; print(hashlib.md5(b'test').hexdigest())\"", "unsandboxed_ms": 87.15, "sandboxed_ms": 836.54, "delta_ms": 749.4}
+{"command_index": 39, "command": "python -c \"print(list(reversed([1, 2, 3])))\"", "unsandboxed_ms": 93.52, "sandboxed_ms": 611.3, "delta_ms": 517.78}
+{"command_index": 40, "command": "python -c \"print(42)\"", "unsandboxed_ms": 233.13, "sandboxed_ms": 577.24, "delta_ms": 344.11}
+{"command_index": 41, "command": "python -c \"import sys; print(sys.version_info[0])\"", "unsandboxed_ms": 72.22, "sandboxed_ms": 533.44, "delta_ms": 461.22}
+{"command_index": 42, "command": "python -c \"import os; print(os.name)\"", "unsandboxed_ms": 119.29, "sandboxed_ms": 451.62, "delta_ms": 332.33}
+{"command_index": 43, "command": "python -c \"import math; print(math.sqrt(144))\"", "unsandboxed_ms": 75.21, "sandboxed_ms": 460.6, "delta_ms": 385.39}
+{"command_index": 44, "command": "python -c \"import json; print(json.dumps({'status': 'ok'}))\"", "unsandboxed_ms": 125.41, "sandboxed_ms": 563.42, "delta_ms": 438.0}
+{"command_index": 45, "command": "python -c \"print(sum(range(100)))\"", "unsandboxed_ms": 70.59, "sandboxed_ms": 740.32, "delta_ms": 669.74}
+{"command_index": 46, "command": "python -c \"import uuid; print(len(str(uuid.uuid4())))\"", "unsandboxed_ms": 71.12, "sandboxed_ms": 637.64, "delta_ms": 566.53}
+{"command_index": 47, "command": "python -c \"print('devmate_test'.upper())\"", "unsandboxed_ms": 128.37, "sandboxed_ms": 681.92, "delta_ms": 553.55}
+{"command_index": 48, "command": "python -c \"import hashlib; print(hashlib.md5(b'test').hexdigest())\"", "unsandboxed_ms": 93.08, "sandboxed_ms": 668.65, "delta_ms": 575.57}
+{"command_index": 49, "command": "python -c \"print(list(reversed([1, 2, 3])))\"", "unsandboxed_ms": 145.82, "sandboxed_ms": 588.63, "delta_ms": 442.8}
