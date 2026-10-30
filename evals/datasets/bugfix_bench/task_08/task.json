@@ -1,0 +1,11 @@
+{
+  "task_id": "task_08",
+  "language": "python",
+  "category": "boundary_condition",
+  "description": "in_range excludes maximum value due to < instead of <=.",
+  "test_command": "python -m pytest tests/test_failing.py",
+  "failing_test": "tests/test_failing.py",
+  "existing_test": "tests/test_existing.py",
+  "hidden_test": "tests/test_hidden.py",
+  "target_file": "validator.py"
+}

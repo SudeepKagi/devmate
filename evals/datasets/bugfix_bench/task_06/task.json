@@ -1,0 +1,11 @@
+{
+  "task_id": "task_06",
+  "language": "python",
+  "category": "wrong_sort_order",
+  "description": "PriorityQueue sorts lowest number first instead of highest priority first.",
+  "test_command": "python -m pytest tests/test_failing.py",
+  "failing_test": "tests/test_failing.py",
+  "existing_test": "tests/test_existing.py",
+  "hidden_test": "tests/test_hidden.py",
+  "target_file": "queue.py"
+}

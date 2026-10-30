@@ -1,0 +1,11 @@
+{
+  "task_id": "task_19",
+  "language": "python",
+  "category": "json_serialization_failure",
+  "description": "serialize_event raises TypeError when event contains datetime.",
+  "test_command": "python -m pytest tests/test_failing.py",
+  "failing_test": "tests/test_failing.py",
+  "existing_test": "tests/test_existing.py",
+  "hidden_test": "tests/test_hidden.py",
+  "target_file": "serializer.py"
+}

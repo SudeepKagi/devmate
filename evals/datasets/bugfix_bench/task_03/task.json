@@ -1,0 +1,11 @@
+{
+  "task_id": "task_03",
+  "language": "python",
+  "category": "wrong_operator",
+  "description": "Discount calculator uses > instead of >= for the tier boundary at 100.",
+  "test_command": "python -m pytest tests/test_failing.py",
+  "failing_test": "tests/test_failing.py",
+  "existing_test": "tests/test_existing.py",
+  "hidden_test": "tests/test_hidden.py",
+  "target_file": "discounts.py"
+}

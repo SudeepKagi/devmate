@@ -1,0 +1,11 @@
+{
+  "task_id": "task_14",
+  "language": "python",
+  "category": "deep_copy_missing",
+  "description": "create_config mutates shared nested template dict.",
+  "test_command": "python -m pytest tests/test_failing.py",
+  "failing_test": "tests/test_failing.py",
+  "existing_test": "tests/test_existing.py",
+  "hidden_test": "tests/test_hidden.py",
+  "target_file": "cloner.py"
+}

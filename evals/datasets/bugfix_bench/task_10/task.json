@@ -1,0 +1,11 @@
+{
+  "task_id": "task_10",
+  "language": "python",
+  "category": "regex_boundary",
+  "description": "is_valid_uuid accepts invalid strings containing a UUID substring.",
+  "test_command": "python -m pytest tests/test_failing.py",
+  "failing_test": "tests/test_failing.py",
+  "existing_test": "tests/test_existing.py",
+  "hidden_test": "tests/test_hidden.py",
+  "target_file": "uuid_validator.py"
+}
