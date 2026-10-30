@@ -15,7 +15,7 @@
 
 | Step | Title | Status | Commit SHA | Description |
 | :--- | :--- | :--- | :--- | :--- |
-| **0** | **Setup and Safety** | Completed | Pending | Created branch, hardened `.gitignore`, established directory structure (`evals/`, `docs/adr/`), configured feature flags with backward-compatible defaults, and verified existing test suite collection (45 tests). |
+| **0** | **Setup and Safety** | Completed | `a0817ab` | Created branch, hardened `.gitignore`, established directory structure (`evals/`, `docs/adr/`), configured feature flags with backward-compatible defaults, and verified existing test suite collection (45 tests). |
 | **1** | **Instrumentation** | Not Started | — | Add LLM metrics tracking wrapper (tokens, latency, cached tokens, cost calculator, JSONL logger). |
 | **2** | **Datasets & Baseline** | Not Started | — | Create 50+ retrieval dataset, 25+ bugfix benchmark tasks, 100 developer queries, and measure baseline (all optimizations OFF). |
 | **3** | **Prompt Caching** | Not Started | — | Implement provider prompt caching structure, measure cached token shares. |

@@ -35,3 +35,4 @@ Key challenges addressed in this initial step:
 - **Reproducibility**: Any experiment can be reproduced by passing a specific `config.yaml` or setting corresponding environment overrides.
 - **Safety First**: By establishing `.gitignore` boundaries prior to adding new evaluation runners and benchmarks, we prevent accidental exposure of enterprise credentials or polluting Git history.
 - **Traceability**: Every subsequent optimization step maps to a formal Architecture Decision Record (ADR), creating a defensible engineering log for technical interviews.
+
