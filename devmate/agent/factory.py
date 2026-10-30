@@ -1,12 +1,16 @@
 import os
 from langchain.agents import create_agent
 
+from devmate.config import config
 from devmate.llm.factory import get_llm
+from devmate.llm.prompt_cache import get_cached_system_prompt, is_prompt_caching_enabled
 from devmate.agent.tools import search_codebase
 from devmate.observability.logger import get_logger
 from devmate.tools.terminal_tools import run_command, run_in_directory
 from devmate.tools.filesystem_tools import (
     read_file,
+    write_file,
+    update_file,
     list_directory,
     file_exists,
 )
@@ -37,11 +41,15 @@ async def build_agent(
     elif mcp_tools is None:
         mcp_tools = await get_devmate_mcp_tools()
 
-    # Build dynamic skills prompt
-    skills_prompt = build_skills_prompt()
-    full_prompt = SYSTEM_PROMPT
-    if skills_prompt:
-        full_prompt = SYSTEM_PROMPT + "\n\n" + skills_prompt
+    # Build system prompt (structured for cache when enabled)
+    if is_prompt_caching_enabled():
+        provider = config.get("llm", {}).get("provider", "openai")
+        full_prompt = get_cached_system_prompt(provider=provider)
+    else:
+        skills_prompt = build_skills_prompt()
+        full_prompt = SYSTEM_PROMPT
+        if skills_prompt:
+            full_prompt = SYSTEM_PROMPT + "\n\n" + skills_prompt
 
     tools = [
         search_codebase,
@@ -49,6 +57,8 @@ async def build_agent(
         run_command,
         run_in_directory,
         read_file,
+        write_file,
+        update_file,
         list_directory,
         file_exists,
         *mcp_tools,

@@ -50,7 +50,15 @@ async def run_workload(
         config["chromadb"]["persist_dir"] = ".devmate/chromadb_file/"
         semantic_cache = None
         cache_domain = None
-    else:  # optimized
+    elif mode == "prompt_cache":
+        config["semantic_cache"]["enabled"] = False
+        config["prompt_caching"]["enabled"] = True
+        config["router"]["enabled"] = False
+        config["llm"]["model"] = "gpt-4o"
+        config["chromadb"]["persist_dir"] = ".devmate/chromadb_file/"
+        semantic_cache = None
+        cache_domain = None
+    else:  # full optimized
         config["semantic_cache"]["enabled"] = True
         config["prompt_caching"]["enabled"] = True
         config["router"]["enabled"] = True
@@ -158,7 +166,7 @@ async def run_workload(
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run Devmate Cost and Workload Benchmark")
-    parser.add_argument("--mode", default="baseline", choices=["baseline", "optimized"], help="Evaluation mode")
+    parser.add_argument("--mode", default="baseline", choices=["baseline", "prompt_cache", "optimized"], help="Evaluation mode")
     parser.add_argument("--run-id", default="run_1", help="Benchmark run identifier")
     parser.add_argument("--limit", type=int, default=None, help="Limit number of queries")
     args = parser.parse_args()

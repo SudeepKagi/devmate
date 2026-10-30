@@ -1,0 +1,17 @@
+{
+  "mode": "prompt_cache",
+  "run_id": "run_1",
+  "total_queries": 100,
+  "cache_hits": 0,
+  "cache_hit_rate_pct": 0.0,
+  "total_input_tokens": 978178,
+  "total_output_tokens": 51800,
+  "total_cached_input_tokens": 290816,
+  "prompt_cache_read_share_pct": 29.73,
+  "total_tokens": 1029978,
+  "total_cost_usd": 2.599925,
+  "mean_latency_ms": 3688.52,
+  "p50_latency_ms": 3717.98,
+  "p95_latency_ms": 7620.14,
+  "results_file": "evals\\results\\workload_prompt_cache_run_1.jsonl"
+}
