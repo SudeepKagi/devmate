@@ -33,9 +33,10 @@ async def build_agent(
     mcp_tools=None,
     enable_safety: bool = False,
     include_mcp_tools: bool = True,
+    model: str | None = None,
 ):
     """Create and return a LangChain agent with persistent memory and tools."""
-    llm = get_llm()
+    llm = get_llm(model=model)
     if not include_mcp_tools:
         mcp_tools = []
     elif mcp_tools is None:

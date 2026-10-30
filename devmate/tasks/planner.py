@@ -18,6 +18,7 @@ from devmate.config import config
 from devmate.tasks.task_store import TaskType
 from devmate.observability.logger import get_logger
 from devmate.observability.metrics_tracker import MetricsCallbackHandler
+from devmate.llm.router import router
 
 logger = get_logger(__name__)
 
@@ -62,7 +63,10 @@ Rules:
 def create_plan(goal: str, extra_context: str = "") -> ExecutionPlan:
     """Call the LLM planner and return a structured ExecutionPlan using low-cost model."""
     provider = config.get("llm", {}).get("provider", "openai")
-    model = config.get("llm", {}).get("model", "gpt-4o-mini")
+    if router.is_enabled():
+        model, _, _ = router.route(task_type="planning", query=goal, task_id="planner")
+    else:
+        model = config.get("llm", {}).get("model", "gpt-4o-mini")
 
     llm = init_chat_model(f"{provider}:{model}", temperature=0)
 

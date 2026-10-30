@@ -1,0 +1,100 @@
+{"index": 0, "query": "How is the LLM client initialized in Devmate?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 1, "query": "Where is the configuration loaded from YAML and environment?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 2, "query": "Explain how AST chunking works in the code parser.", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 3, "query": "Which tools are available to the Devmate agent?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 4, "query": "How does semantic caching prevent duplicate LLM calls?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 5, "query": "Where are the guardrails and content filters implemented?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 6, "query": "What is the schema for PlannedTask in the task planner?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 7, "query": "Show how hybrid search combines Qdrant dense and BM25 results.", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 8, "query": "How does human in the loop approval work for shell commands?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 9, "query": "What database is used for storing persistent tasks?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 10, "query": "How are MCP tools discovered and loaded into the agent?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 11, "query": "Where is the session memory stored across conversation turns?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 12, "query": "Explain how the code watcher detects modified files.", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 13, "query": "How does the metrics tracker calculate API costs?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 14, "query": "What is the formula used for Reciprocal Rank Fusion?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 15, "query": "Where is the system prompt for the codebase agent defined?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 16, "query": "How are PII patterns like API keys and credit cards redacted?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 17, "query": "What happens when an LLM call encounters a rate limit error?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 18, "query": "How does the task orchestrator handle failed steps?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 19, "query": "Where is the terminal execution tool defined?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 20, "query": "How are developer skills loaded into the agent's prompt?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 21, "query": "What vector dimension is configured for text-embedding-3-small?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 22, "query": "Where is the main entry point CLI defined?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 23, "query": "How does the agent search codebase using Qdrant?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 24, "query": "Show the Chroma indexer implementation.", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 25, "query": "What is the similarity threshold for semantic cache hits?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 26, "query": "How are tasks prioritized in the execution plan?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 27, "query": "Where is the file reading tool implemented?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 28, "query": "How does the agent handle directory listing?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 29, "query": "Explain the structure of ExecutionPlan model.", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 30, "query": "Where is cosine similarity calculated for query embeddings?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 31, "query": "How does the LangGraph runtime pause for human approval?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 32, "query": "What happens when an unknown LLM provider is requested?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 33, "query": "Where are the default configuration values stored?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 34, "query": "How is short term conversation history summarized?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 35, "query": "Show how SQLite stores task execution logs.", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 36, "query": "What models are supported in the pricing table?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 37, "query": "How does the codebase agent reset search history?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 38, "query": "Where is the prompt caching configuration defined?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 39, "query": "How does the model router pick between fast and strong models?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 40, "query": "What are the allowed TaskStatus values?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 41, "query": "How does the agent verify that a file exists?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 42, "query": "Where is the MCP configuration file located?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 43, "query": "How are embedding tokens counted and billed?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 44, "query": "Explain how task recovery plans are generated.", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 45, "query": "Where is the SafetyGuardrailMiddleware defined?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 46, "query": "What is the default TTL for semantic cache entries?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 47, "query": "How does the code parser handle syntax errors during AST chunking?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 48, "query": "Where is the task approval UI handled?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 49, "query": "What is the recursion limit set for the agent loop?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 50, "query": "How does the LangChain callback handler extract cached tokens?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 51, "query": "Where is the Qdrant hybrid collection initialized?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 52, "query": "What happens if Redis is unavailable for semantic caching?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 53, "query": "How are task dependencies resolved before execution?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 54, "query": "Where is the RedactionDebugMiddleware configured?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 55, "query": "How does the agent know when to stop searching and formulate an answer?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 56, "query": "What environment variables are checked for Gemini API keys?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 57, "query": "Where are custom skills stored on the filesystem?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 58, "query": "How is the plan status queried and aggregated?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 59, "query": "What is the token limit before short-term memory triggers summarization?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 60, "query": "How is the LLM client initialized in Devmate?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 61, "query": "Where is the configuration loaded from YAML and environment?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 62, "query": "Explain how AST chunking works in the code parser.", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 63, "query": "Which tools are available to the Devmate agent?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 64, "query": "How does semantic caching prevent duplicate LLM calls?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 65, "query": "Where are the guardrails and content filters implemented?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 66, "query": "What is the schema for PlannedTask in the task planner?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 67, "query": "Show how hybrid search combines Qdrant dense and BM25 results.", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 68, "query": "How does human in the loop approval work for shell commands?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 69, "query": "What database is used for storing persistent tasks?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 70, "query": "How are MCP tools discovered and loaded into the agent?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 71, "query": "Where is the session memory stored across conversation turns?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 72, "query": "Explain how the code watcher detects modified files.", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 73, "query": "How does the metrics tracker calculate API costs?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 74, "query": "What is the formula used for Reciprocal Rank Fusion?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 75, "query": "Where is the system prompt for the codebase agent defined?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 76, "query": "How are PII patterns like API keys and credit cards redacted?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 77, "query": "What happens when an LLM call encounters a rate limit error?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 78, "query": "How does the task orchestrator handle failed steps?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 79, "query": "Where is the terminal execution tool defined?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 80, "query": "Can you show me where the LLM factory constructs chat models?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 81, "query": "In which file does Devmate parse configuration options?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 82, "query": "Describe the logic for breaking code files into AST chunks.", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 83, "query": "List all agent tools registered for filesystem and search.", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 84, "query": "How does Redis semantic cache avoid querying OpenAI repeatedly?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 85, "query": "Where can I find the input and output safety guardrails?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 86, "query": "What attributes does a PlannedTask object contain?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 87, "query": "How are BM25 and vector scores merged using RRF?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 88, "query": "Explain the interactive confirmation mechanism for bash commands.", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 89, "query": "Which storage system persists tasks and plans across restarts?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 90, "query": "How does Devmate connect to external MCP servers?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 91, "query": "Where does multi-turn conversation memory get persisted?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 92, "query": "How does the background watcher monitor repository changes?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 93, "query": "What is the calculation method for token pricing and billing?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 94, "query": "Explain reciprocal rank fusion ranking in the hybrid retriever.", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 95, "query": "Where can I view the initial system prompt of the agent?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 96, "query": "How does the PII middleware redact secrets and credentials?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 97, "query": "What fallback occurs when an API rate limit is exceeded?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 98, "query": "Show the error recovery workflow when a subtask fails.", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}
+{"index": 99, "query": "Where is the run_command terminal function located?", "selected_model": "gpt-4o-mini", "reason": "standard_lookup_default_light", "escalated": false}

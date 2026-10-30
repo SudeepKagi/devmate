@@ -12,6 +12,7 @@ from devmate.safety.guardrails import PIIDetectionError
 from devmate.safety.hitl import handle_interrupts
 from devmate.observability.logger import get_logger
 from devmate.observability.metrics_tracker import metrics_tracker, MetricsCallbackHandler
+from devmate.llm.router import router
 
 logger = get_logger(__name__)
 
@@ -26,7 +27,10 @@ async def handle_query(
 ) -> str:
     """Entry point for all user queries - invokes agent with semantic caching, HITL interrupts, and guardrails."""
     logger.info(f"Handling query for session {thread_id}: {question}")
-    model = config.get("llm", {}).get("model", "gpt-4o-mini")
+    if router.is_enabled():
+        model, route_reason, _ = router.route(task_type="query", query=question, task_id=thread_id)
+    else:
+        model = config.get("llm", {}).get("model", "gpt-4o-mini")
 
     if semantic_cache is not None and cache_domain is not None:
         try:
