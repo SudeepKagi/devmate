@@ -43,6 +43,7 @@ jobs:
   evaluations:
     name: DeepEval & Agent Evals
     needs: unit-tests
+    if: ${{ secrets.OPENAI_API_KEY != '' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -75,7 +76,6 @@ jobs:
         run: poetry install --with dev
 
       - name: Run RAG Pipeline Evals
-        if: env.OPENAI_API_KEY != ''
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
@@ -84,7 +84,6 @@ jobs:
             --ignore-errors
 
       - name: Run Codebase Agent Evals
-        if: env.OPENAI_API_KEY != ''
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
@@ -94,7 +93,6 @@ jobs:
             --ignore-errors
 
       - name: Run Task Planning Agent Evals
-        if: env.OPENAI_API_KEY != ''
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
@@ -102,4 +100,3 @@ jobs:
             --identifier "ci-task-planning" \
             --num-processes 2 \
             --ignore-errors
-

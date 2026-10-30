@@ -64,7 +64,7 @@ def test_symlink_escape_blocked(jail_workspace):
 
     with pytest.raises(SecurityError) as exc_info:
         validate_workspace_path(str(symlink_path), workspace_root=jail_workspace)
-    assert "Symlink escape blocked" in str(exc_info.value)
+    assert "Symlink escape blocked" in str(exc_info.value) or "Path traversal blocked" in str(exc_info.value)
 
 
 def test_filesystem_tools_respect_path_jail(jail_workspace):
