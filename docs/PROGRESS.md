@@ -17,7 +17,7 @@
 | :--- | :--- | :--- | :--- | :--- |
 | **0** | **Setup and Safety** | Completed | `a0817ab`, `dcd6091` | Created branch, hardened `.gitignore`, established directory structure (`evals/`, `docs/adr/`), configured feature flags with backward-compatible defaults, and verified existing test suite collection (45 tests). |
 | **1** | **Instrumentation** | Completed | `e6b3aa5` | Added `devmate/observability/metrics_tracker.py`, official pricing table in `config.yaml` / `devmate/config.py`, wired `MetricsCallbackHandler` into `get_llm`, planner, and orchestrator; wrote `docs/adr/ADR-001-metrics-instrumentation.md`; 8/8 unit tests passing. |
-| **2** | **Datasets & Baseline** | Not Started | — | Create 50+ retrieval dataset, 25+ bugfix benchmark tasks, 100 developer queries, and measure baseline (all optimizations OFF). |
+| **2** | **Datasets & Baseline** | Completed | `4c553d3` (datasets), `[pending]` (results) | Created 50-query retrieval ground truth, 25 isolated bugfix tasks, 100 developer workload queries; ran baseline across all three benchmarks with all optimizations OFF. Baseline retrieval Hit@1=44.0%, Hit@5=52.0%, MRR=0.474, mean context=6,149 tokens; Baseline bugfix resolved=0/25 (0.0%); Baseline workload 100 queries: cost=$3.2687, tokens=1,315,656, p50 latency=4,715.7ms. |
 | **3** | **Prompt Caching** | Not Started | — | Implement provider prompt caching structure, measure cached token shares. |
 | **4** | **Dynamic Model Router** | Not Started | — | Implement rule-based & classifier router (fast vs strong model), quality guard on bugfix bench. |
 | **5** | **Sandboxed Execution** | Not Started | — | Docker/path jail execution sandbox, security test suite. |

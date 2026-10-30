@@ -6,6 +6,7 @@ try:
 except ImportError:
     Language, Parser = None, None
 
+from devmate.config import config
 from devmate.observability.logger import get_logger
 
 logger = get_logger(__name__)
@@ -92,8 +93,23 @@ class ParsedChunk:
     start_line: int
     end_line: int
 
-def parse_file(filepath: str) -> list[ParsedChunk]:
-    """Entry point - routes to AST parsing or falls back safely to sliding window."""
+def parse_file(filepath: str, mode: str | None = None) -> list[ParsedChunk]:
+    """Entry point - routes to file-level chunking or AST parsing or falls back safely to sliding window."""
+    chunk_mode = mode or config.get("chunking", {}).get("mode", "ast")
+    if chunk_mode == "file":
+        content = Path(filepath).read_text(encoding="utf-8", errors="ignore")
+        lines = content.splitlines()
+        return [
+            ParsedChunk(
+                name=Path(filepath).name,
+                type="file",
+                content=content,
+                source=filepath,
+                start_line=1,
+                end_line=len(lines),
+            )
+        ]
+
     ext = Path(filepath).suffix.lower()
 
     if ext in TEXT_EXTENSIONS:
