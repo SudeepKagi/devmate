@@ -71,6 +71,7 @@ def evaluate_retrieval(
     # Set configuration mode
     config["chunking"]["mode"] = chunking
     config["vector_store"]["retrieval_mode"] = mode
+    config["retrieval"]["mode"] = mode
     config["rag"]["mode"] = "hybrid" if mode == "hybrid" else "semantic"
     config["chromadb"]["persist_dir"] = f".devmate/chromadb_{chunking}/"
 

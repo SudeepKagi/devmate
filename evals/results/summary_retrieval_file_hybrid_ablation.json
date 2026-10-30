@@ -1,0 +1,12 @@
+{
+  "mode": "hybrid",
+  "chunking": "file",
+  "run_id": "ablation",
+  "total_queries": 50,
+  "hit_at_1": 0.3,
+  "hit_at_5": 0.58,
+  "mrr": 0.4053,
+  "precision_at_5": 0.116,
+  "mean_context_tokens": 8971.6,
+  "results_file": "evals\\results\\retrieval_file_hybrid_ablation.jsonl"
+}
