@@ -17,7 +17,7 @@ def index_codebase(repo_path: str, force: bool = False) -> QdrantVectorStore:
     Returns the QdrantVectorStore. Skips indexing if collection already has data.
     """
     embedder = get_embedder()
-    collection_name = get_project_collection_name(repo_path)
+    collection_name = get_project_collection_name(repo_path, store="qdrant")
     url = os.getenv("QDRANT_URL")
     api_key = os.getenv("QDRANT_API_KEY")
 

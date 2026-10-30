@@ -32,6 +32,25 @@ DEFAULT_CONFIG = {
         "threshold": 0.85,
         "ttl": 86400,
     },
+    "prompt_caching": {
+        "enabled": False,
+    },
+    "router": {
+        "enabled": False,
+        "fast_model": "gpt-4o-mini",
+        "strong_model": "gpt-4o",
+    },
+    "retrieval": {
+        "mode": "dense",  # "dense" | "hybrid"
+    },
+    "chunking": {
+        "mode": "ast",  # "file" | "ast"
+    },
+    "sandbox": {
+        "enabled": False,
+        "timeout_seconds": 30,
+        "network": False,
+    },
     "tasks": {
         "db_path": ".devmate/tasks.db",
     },
@@ -87,7 +106,7 @@ load_dotenv(Path.home() / ".devmate" / ".env")
 
 config = load_config()
 
-def get_project_collection_name(repo_path: str = None) -> str:
+def get_project_collection_name(repo_path: str = None, store: str = None) -> str:
     """
     Return a project-scoped collection name for vector stores (e.g. Qdrant / Chroma).
     If the project has an explicit custom collection_name configured in its local config.yaml, use it.
@@ -95,14 +114,17 @@ def get_project_collection_name(repo_path: str = None) -> str:
     so different projects don't collide in shared vector databases.
     """
     import re
-    provider = config.get("vector_store", {}).get("provider", "qdrant")
-    store_cfg = config.get("qdrant" if provider == "qdrant" else "chromadb", {})
+    if store:
+        store_cfg = config.get(store, {})
+    else:
+        provider = config.get("vector_store", {}).get("provider", "chroma")
+        store_cfg = config.get("chromadb" if provider == "chroma" else "qdrant", {})
     configured = store_cfg.get("collection_name", "codebase")
 
     target = Path(repo_path or Path.cwd()).resolve()
     folder_slug = re.sub(r"[^a-zA-Z0-9_-]", "_", target.name.lower()).strip("_")
 
-    if configured == "codebase" and folder_slug:
+    if configured in ("codebase", "devmate") and folder_slug:
         return f"codebase_{folder_slug}"
     return configured or (f"codebase_{folder_slug}" if folder_slug else "codebase")
 

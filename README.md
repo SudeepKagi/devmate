@@ -1,6 +1,6 @@
 <div align="center">
 
-# Devmate (Educosys Claude Code)
+# Devmate
 
 ### *Autonomous RAG-Powered Coding Agent CLI built on LangChain, LangGraph & DeepEval*
 
@@ -23,7 +23,7 @@
 
 ---
 
-**Devmate** (also known as **Educosys Claude Code**) is an autonomous coding agent CLI (`devmate`) built on **LangChain** and **LangGraph**. Like Claude Code, it is a tool you run *inside another project* (or an empty directory) to get help with that project's code — it is never meant to be pointed at its own source.
+**Devmate** is an autonomous coding agent CLI (`devmate`) built on **LangChain** and **LangGraph**. Like Claude Code, it is a tool you run *inside another project* (or an empty directory) to get help with that project's code — it is never meant to be pointed at its own source.
 
 It features two distinct agentic surfaces:
 - **Codebase Agent (`/ask`)** — a tool-using ReAct-style agent ([devmate/agent/orchestrator.py](devmate/agent/orchestrator.py), [devmate/agent/factory.py](devmate/agent/factory.py)) that answers architectural and implementation questions about whatever repository it is launched in by calling `search_codebase` (RAG over a ChromaDB or Qdrant vector index), `run_command` / `run_in_directory`, external MCP tools, and dynamically loaded skills.

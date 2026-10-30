@@ -25,6 +25,25 @@ semantic_cache:
   threshold: 0.85
   ttl: 86400
 
+prompt_caching:
+  enabled: false
+
+router:
+  enabled: false
+  fast_model: gpt-4o-mini
+  strong_model: gpt-4o
+
+retrieval:
+  mode: dense   # dense | hybrid
+
+chunking:
+  mode: ast     # file | ast
+
+sandbox:
+  enabled: false
+  timeout_seconds: 30
+  network: false
+
 skills:
   skills_dir: .devmate/skills
 
